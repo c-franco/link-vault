@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">LinkVault</string>
+    <string name="title_links">Links</string>
+    <string name="title_categories">Categories</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_settings">Settings</string>
+</resources>
