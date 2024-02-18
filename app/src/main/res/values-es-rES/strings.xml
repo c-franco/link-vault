@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_links">Enlaces</string>
+    <string name="title_categories">Categorías</string>
+    <string name="title_favorites">Favoritos</string>
+    <string name="title_settings">Ajustes</string>
+    <string name="item_add">Añadir</string>
+    <string name="item_search">Buscar</string>
+    <string name="item_more">Más</string>
+</resources>
