@@ -9,4 +9,8 @@
     <string name="item_add">Add</string>
     <string name="item_search">Search</string>
     <string name="item_more">More</string>
+
+    <string name="text_create">Create</string>
+    <string name="text_create_link">Create new link</string>
+    <string name="text_create_category">Create new category</string>
 </resources>

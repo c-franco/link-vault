@@ -26,21 +26,6 @@ public class FavoritesFragment extends Fragment {
 
         return root;
     }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item_add = menu.findItem(R.id.item_add);
-
-        if(item_add != null)
-            item_add.setVisible(false);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();

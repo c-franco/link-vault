@@ -29,30 +29,6 @@ public class SettingsFragment extends Fragment {
 
         return root;
     }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item_search = menu.findItem(R.id.item_search);
-        MenuItem item_add = menu.findItem(R.id.item_add);
-        MenuItem prueba1 = menu.findItem(R.id.prueba1);
-        MenuItem prueba2 = menu.findItem(R.id.prueba2);
-
-        if(item_search != null)
-            item_search.setVisible(false);
-        if(item_add != null)
-            item_add.setVisible(false);
-        if(prueba1 != null)
-            prueba1.setVisible(false);
-        if(prueba2 != null)
-            prueba2.setVisible(false);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();

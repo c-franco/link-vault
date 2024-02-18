@@ -12,6 +12,11 @@
         android:title="@string/title_categories" />
 
     <item
+        android:id="@+id/navigation_add"
+        android:title=""
+        android:enabled="false" />
+
+    <item
         android:id="@+id/navigation_favorites"
         android:icon="@drawable/ic_favorites_24dp"
         android:title="@string/title_favorites" />

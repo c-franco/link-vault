@@ -7,4 +7,7 @@
     <string name="item_add">Añadir</string>
     <string name="item_search">Buscar</string>
     <string name="item_more">Más</string>
+    <string name="text_create">Crear</string>
+    <string name="text_create_link">Crear nuevo enlace</string>
+    <string name="text_create_category">Crear nueva categoría</string>
 </resources>
