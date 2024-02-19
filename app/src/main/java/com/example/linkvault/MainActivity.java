@@ -1,7 +1,9 @@
 package com.example.linkvault;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -11,8 +13,16 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,10 +34,14 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.linkvault.databinding.ActivityMainBinding;
 import com.example.linkvault.models.Category;
+import com.example.linkvault.models.Link;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private LinkVaultBD dbHelper;
+    private AutoCompleteTextView auto_complete_textView;
+
+    private String selectedCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,17 +116,203 @@ public class MainActivity extends AppCompatActivity {
 
     //endregion
 
+    // region Dialogs
+
+    private void showBottomDialog() {
+
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.bottom_sheet);
+
+        LinearLayout linksLayout = dialog.findViewById(R.id.layout_links);
+        LinearLayout categoriesLayout = dialog.findViewById(R.id.layout_categories);
+        ImageView cancelButton = dialog.findViewById(R.id.cancel_button);
+
+        linksLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                newLinkDialog();
+            }
+        });
+
+        categoriesLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                dialog.dismiss();
+                newCategoryDialog(false);
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    public void newLinkDialog() {
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.link_detail);
+
+        Button cancelButton = dialog.findViewById(R.id.bt_cancel_link);
+        Button createButton = dialog.findViewById(R.id.bt_create_link);
+        TextView createCategory = dialog.findViewById(R.id.bt_create_category_inlink);
+        TextView titleText = dialog.findViewById(R.id.et_title_link);
+        TextView urlText = dialog.findViewById(R.id.et_url_link);
+        CheckBox isFavorite = dialog.findViewById(R.id.cb_favorite);
+        CheckBox isPrivate = dialog.findViewById(R.id.cb_private);
+
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        params.gravity = Gravity.CENTER;
+        params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
+        auto_complete_textView = dialog.findViewById(R.id.auto_complete_textView);
+        loadCategories();
+
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String title = titleText.getText().toString();
+                String url = urlText.getText().toString();
+
+                if(!validString(title)) {
+                    Toast.makeText(MainActivity.this, getString(R.string.error_title_link_empty), Toast.LENGTH_SHORT).show();
+                }
+                else if(!validString(url)) {
+                    Toast.makeText(MainActivity.this, getString(R.string.error_url_empty), Toast.LENGTH_SHORT).show();
+                }
+                else if(!validUrl(url)) {
+                    Toast.makeText(MainActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
+                }
+                else if(selectedCategory == null) {
+                    Toast.makeText(MainActivity.this, getString(R.string.error_category_empty), Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    try {
+                        int idCategory = dbHelper.getCategoryId(selectedCategory);
+
+                        Link link = new Link();
+                        link.title = title;
+                        link.url = url;
+                        link.idCategory = idCategory;
+                        link.isFavorite = isFavorite.isChecked();
+                        link.isPrivate = isPrivate.isChecked();
+
+                        dbHelper.addNewLink(link);
+                    } catch (Exception ex) {
+                        Toast.makeText(MainActivity.this, getString(R.string.error_db_link), Toast.LENGTH_SHORT).show();
+                    }
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        createCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newCategoryDialog(true);
+            }
+        });
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+                //setItemsRutinas();
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+    }
+
+    public void newCategoryDialog(boolean parent) {
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.category_detail);
+
+        Button cancelButton = dialog.findViewById(R.id.bt_cancel_category);
+        Button createButton = dialog.findViewById(R.id.bt_create_category);
+        TextView titleText = dialog.findViewById(R.id.et_title_category);
+
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        params.gravity = Gravity.CENTER;
+        params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String title = titleText.getText().toString();
+
+                if(!validString(title)) {
+                    Toast.makeText(MainActivity.this, getString(R.string.error_title_category_empty), Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    try {
+                        Category category = new Category();
+                        category.title = title;
+
+                        dbHelper.addNewCategory(category);
+                    } catch (Exception ex) {
+                        Toast.makeText(MainActivity.this, getString(R.string.error_db_category), Toast.LENGTH_SHORT).show();
+                    }
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+                if(parent)
+                    loadCategories();
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+    }
+
+    //endregion
+
     //region Other Methods
 
     private void createCategories() {
 
         if(isFirstTime()) {
-            Category category1 = new Category("Categoría 1");
-            Category category2 = new Category("Categoría 2");
-            Category category3 = new Category("Categoría 3");
-            Category category4 = new Category("Categoría 4");
-            Category category5 = new Category("Categoría 5");
-            Category category6 = new Category("Categoría 6");
+            Category category1 = new Category(getString(R.string.default_category1));
+            Category category2 = new Category(getString(R.string.default_category2));
+            Category category3 = new Category(getString(R.string.default_category3));
+            Category category4 = new Category(getString(R.string.default_category4));
+            Category category5 = new Category(getString(R.string.default_category5));
+            Category category6 = new Category(getString(R.string.default_category6));
 
             List<Category> categoryList = new ArrayList<>();
             categoryList.add(category1);
@@ -127,46 +330,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showBottomDialog() {
+    private void loadCategories() {
 
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.bottom_sheet);
+        List<String> categoryTitles = dbHelper.getAllCategoryTitles();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this, R.layout.list_item, categoryTitles);
 
-        LinearLayout linksLayout = dialog.findViewById(R.id.layout_links);
-        LinearLayout categoriesLayout = dialog.findViewById(R.id.layout_categories);
-        ImageView cancelButton = dialog.findViewById(R.id.cancel_button);
+        auto_complete_textView.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
 
-        linksLayout.setOnClickListener(new View.OnClickListener() {
+        auto_complete_textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this,"Upload a Video is clicked",Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = (String) parent.getItemAtPosition(position);
             }
         });
+    }
 
-        categoriesLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    public boolean validUrl(String url) {
 
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this,"Create a short is Clicked",Toast.LENGTH_SHORT).show();
-            }
-        });
+        Pattern patron = Pattern.compile("^(https?://(w{3}\\.)?)?\\w+\\.\\w+(\\.[a-zA-Z]+)*(:\\d{1,5})?(/\\w*)*(\\??(.+=.*)?(&.+=.*)?)?$");
+        Matcher mat = patron.matcher(url);
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        return mat.matches();
+    }
 
-        dialog.show();
-        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
+    public boolean validString(String string) {
+
+        Pattern patron = Pattern.compile("^(?!\\s*$).+");
+
+                Matcher mat = patron.matcher(string);
+
+        return mat.matches();
     }
 
     //endregion

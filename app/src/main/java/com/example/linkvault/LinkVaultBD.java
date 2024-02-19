@@ -1,12 +1,17 @@
 package com.example.linkvault;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.linkvault.models.Category;
 import com.example.linkvault.models.Link;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LinkVaultBD extends SQLiteOpenHelper {
 
@@ -47,6 +52,8 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
     }
 
+    // region Create
+
     public void addNewLink(Link link) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -72,4 +79,48 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         db.insert(CATEGORIES_TABLE, null, values);
         db.close();
     }
+
+    // endregion
+
+    // region Category querys
+
+    public List<String> getAllCategoryTitles() {
+        List<String> categoryTitles = new ArrayList<>();
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.query(CATEGORIES_TABLE, new String[]{TITLE_COL}, null, null, null, null, null)) {
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    @SuppressLint("Range") String categoryTitle = cursor.getString(cursor.getColumnIndex(TITLE_COL));
+                    categoryTitles.add(categoryTitle);
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return categoryTitles;
+    }
+
+    @SuppressLint("Range")
+    public int getCategoryId(String selectedCategory) {
+        int categoryId = 0;
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.query(CATEGORIES_TABLE, new String[]{ID_COL}, TITLE_COL + "=?", new String[]{selectedCategory}, null, null, null)) {
+
+            if (cursor != null && cursor.moveToFirst()) {
+                categoryId = cursor.getInt(cursor.getColumnIndex(ID_COL));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return categoryId;
+    }
+
+    // endregion
 }

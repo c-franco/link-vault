@@ -6,11 +6,33 @@
     <string name="title_favorites">Favorites</string>
     <string name="title_settings">Settings</string>
 
+    <string name="item_title">Title</string>
+    <string name="item_category">Category</string>
+    <string name="item_url">Url</string>
     <string name="item_add">Add</string>
     <string name="item_search">Search</string>
     <string name="item_more">More</string>
 
     <string name="text_create">Create</string>
+    <string name="text_cancel">Cancel</string>
     <string name="text_create_link">Create new link</string>
     <string name="text_create_category">Create new category</string>
+    <string name="text_add_favorite">Add to favorite</string>
+    <string name="text_add_private">Add to private</string>
+
+    <string name="error_title_link_empty">The link title is empty</string>
+    <string name="error_title_category_empty">The category title is empty</string>
+    <string name="error_url_empty">The link url is empty</string>
+    <string name="error_url_not_valid">The link url is not valid</string>
+    <string name="error_category_empty">No category has been selected</string>
+    <string name="error_db_link">An error occurred while creating the link</string>
+    <string name="error_db_category">An error occurred while creating the category</string>
+
+    <string name="default_category1">School</string>
+    <string name="default_category2">Work</string>
+    <string name="default_category3">Social networks</string>
+    <string name="default_category4">Sports</string>
+    <string name="default_category5">Media</string>
+    <string name="default_category6">Others</string>
+
 </resources>

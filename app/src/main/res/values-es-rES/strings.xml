@@ -10,4 +10,23 @@
     <string name="text_create">Crear</string>
     <string name="text_create_link">Crear nuevo enlace</string>
     <string name="text_create_category">Crear nueva categoría</string>
+    <string name="item_title">Título</string>
+    <string name="item_category">Categoría</string>
+    <string name="item_url">Url</string>
+    <string name="text_add_private">Añadir a Privado</string>
+    <string name="text_add_favorite">Añadir a Favorito</string>
+    <string name="text_cancel">Cancelar</string>
+    <string name="error_url_empty">La url del enlace está vacía</string>
+    <string name="error_url_not_valid">La URL del enlace no es válida</string>
+    <string name="error_category_empty">No se ha seleccionado ninguna categoría</string>
+    <string name="error_db_link">Se ha producido un error al crear el enlace</string>
+    <string name="default_category1">Escuela</string>
+    <string name="default_category2">Trabajo</string>
+    <string name="default_category3">Redes sociales</string>
+    <string name="default_category4">Deportes</string>
+    <string name="default_category5">Media</string>
+    <string name="default_category6">Otros</string>
+    <string name="error_title_link_empty">El título del enlace está vacío</string>
+    <string name="error_title_category_empty">El título de la categoría está vacío</string>
+    <string name="error_db_category">Se ha producido un error al crear la categoría</string>
 </resources>
