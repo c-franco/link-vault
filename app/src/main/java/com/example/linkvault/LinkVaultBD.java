@@ -82,6 +82,66 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
     // endregion
 
+    // region Link querys
+
+    @SuppressLint("Range")
+    public List<Link> getAllLinks() {
+        List<Link> linkList = new ArrayList<>();
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.query(LINKS_TABLE, new String[]{ID_COL, URL_COL, TITLE_COL, ID_CATEGORY_COL, IS_FAVORITE_COL, IS_PRIVATE_COL}, null, null, null, null, null)) {
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Link link = new Link();
+                    link.id = cursor.getInt(cursor.getColumnIndex(ID_COL));
+                    link.url = cursor.getString(cursor.getColumnIndex(URL_COL));
+                    link.title = cursor.getString(cursor.getColumnIndex(TITLE_COL));
+                    link.idCategory = cursor.getInt(cursor.getColumnIndex(ID_CATEGORY_COL));
+                    link.isFavorite = cursor.getInt(cursor.getColumnIndex(IS_FAVORITE_COL)) > 0;
+                    link.isPrivate = cursor.getInt(cursor.getColumnIndex(IS_PRIVATE_COL)) > 0;
+
+                    linkList.add(link);
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return linkList;
+    }
+
+    public void updateLink(Link link) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(URL_COL, link.url);
+        values.put(TITLE_COL, link.title);
+        values.put(ID_CATEGORY_COL, link.idCategory);
+        values.put(IS_FAVORITE_COL, link.isFavorite);
+        values.put(IS_PRIVATE_COL, link.isPrivate);
+
+        String whereClause = ID_COL + "=?";
+        String[] whereArgs = {String.valueOf(link.id)};
+
+        db.update(LINKS_TABLE, values, whereClause, whereArgs);
+        db.close();
+    }
+
+    public void deleteLinkById(int linkId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String selection = ID_COL + " = ?";
+        String[] selectionArgs = {String.valueOf(linkId)};
+
+        db.delete(LINKS_TABLE, selection, selectionArgs);
+
+        db.close();
+    }
+
+    // endregion
+
     // region Category querys
 
     public List<String> getAllCategoryTitles() {
@@ -120,6 +180,24 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         }
 
         return categoryId;
+    }
+
+    @SuppressLint("Range")
+    public String getCategoryTitle(int categoryId) {
+        String categoryTitle = "";
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.query(CATEGORIES_TABLE, new String[]{TITLE_COL}, ID_COL + "=?", new String[]{String.valueOf(categoryId)}, null, null, null)) {
+
+            if (cursor != null && cursor.moveToFirst()) {
+                categoryTitle = cursor.getString(cursor.getColumnIndex(TITLE_COL));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return categoryTitle;
     }
 
     // endregion

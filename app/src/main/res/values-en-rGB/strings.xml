@@ -8,12 +8,15 @@
     <string name="item_add">Add</string>
     <string name="item_search">Search</string>
     <string name="item_more">More</string>
+    <string name="item_edit">Edit</string>
+    <string name="item_delete">Delete</string>
     <string name="text_create">Create</string>
     <string name="text_create_link">Create new link</string>
     <string name="text_create_category">Create new category</string>
     <string name="item_title">Title</string>
     <string name="item_category">Category</string>
     <string name="text_add_private">Add to Private</string>
+    <string name="text_modify_link">Edit link</string>
     <string name="text_add_favorite">Add to Favorite</string>
     <string name="text_cancel">Cancel</string>
     <string name="error_url_empty">The link url is empty</string>
@@ -26,7 +29,16 @@
     <string name="default_category4">Sports</string>
     <string name="default_category5">Media</string>
     <string name="default_category6">Others</string>
+    <string name="text_clipboard">URL copied to clipboard</string>
     <string name="error_title_link_empty">The link title is empty</string>
     <string name="error_title_category_empty">The category title is empty</string>
     <string name="error_db_category">An error occurred while creating the category</string>
+    <string name="item_share">Share</string>
+    <string name="item_copy">Copy</string>
+    <string name="text_delete_link">Do you want to delete this link permanently?</string>
+    <string name="text_delete_category">Do you want to delete this category permanently?</string>
+    <string name="text_update">Update</string>
+    <string name="text_no_links">No links were added yet.</string>
+    <string name="text_no_categories">No categories were added yet.</string>
+    <string name="item_sort">Sort</string>
 </resources>

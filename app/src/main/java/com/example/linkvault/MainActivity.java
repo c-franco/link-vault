@@ -1,7 +1,8 @@
 package com.example.linkvault;
 
-import android.app.Activity;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -28,14 +28,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.linkvault.databinding.ActivityMainBinding;
 import com.example.linkvault.models.Category;
 import com.example.linkvault.models.Link;
-import com.google.android.material.textfield.TextInputLayout;
+import com.example.linkvault.ui.categories.CategoriesFragment;
+import com.example.linkvault.ui.links.LinksFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String PREF_NAME = "MyPrefs";
-    private static final String KEY_FIRST_TIME = "firstTime";
 
     private ActivityMainBinding binding;
     private LinkVaultBD dbHelper;
@@ -102,15 +103,15 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isFirstTime() {
 
-        SharedPreferences preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        return preferences.getBoolean(KEY_FIRST_TIME, true);
+        SharedPreferences preferences = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        return preferences.getBoolean(Constants.KEY_FIRST_TIME, true);
     }
 
     private void setFirstTime() {
 
-        SharedPreferences preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(KEY_FIRST_TIME, false);
+        editor.putBoolean(Constants.KEY_FIRST_TIME, false);
         editor.apply();
     }
 
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                newLinkDialog();
+                newLinkDialog(null, false);
             }
         });
 
@@ -159,26 +160,47 @@ public class MainActivity extends AppCompatActivity {
         dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
-    public void newLinkDialog() {
+    public void newLinkDialog(Link link, boolean edit) {
 
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.link_detail);
 
         Button cancelButton = dialog.findViewById(R.id.bt_cancel_link);
         Button createButton = dialog.findViewById(R.id.bt_create_link);
+        TextView dialogTitle = dialog.findViewById(R.id.tv_create_link);
         TextView createCategory = dialog.findViewById(R.id.bt_create_category_inlink);
         TextView titleText = dialog.findViewById(R.id.et_title_link);
         TextView urlText = dialog.findViewById(R.id.et_url_link);
         CheckBox isFavorite = dialog.findViewById(R.id.cb_favorite);
         CheckBox isPrivate = dialog.findViewById(R.id.cb_private);
+        auto_complete_textView = dialog.findViewById(R.id.auto_complete_textView);
 
         WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
         params.gravity = Gravity.CENTER;
         params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-        auto_complete_textView = dialog.findViewById(R.id.auto_complete_textView);
+        int id = 0;
+
+        if(edit) {
+            dialogTitle.setText(getString(R.string.text_modify_link));
+            isFavorite.setText((R.string.text_add_favorite));
+            isPrivate.setText((R.string.text_add_private));
+            cancelButton.setText(R.string.text_cancel);
+            createButton.setText(getString(R.string.text_update));
+
+            selectedCategory = dbHelper.getCategoryTitle(link.idCategory);
+
+            id = link.id;
+            titleText.setText(link.title);
+            urlText.setText(link.url);
+            auto_complete_textView.setText(selectedCategory);
+            isFavorite.setChecked(link.isFavorite);
+            isPrivate.setChecked(link.isPrivate);
+        }
+
         loadCategories();
 
+        int finalId = id;
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,11 +231,19 @@ public class MainActivity extends AppCompatActivity {
                         link.isFavorite = isFavorite.isChecked();
                         link.isPrivate = isPrivate.isChecked();
 
-                        dbHelper.addNewLink(link);
+                        if(edit) {
+                            link.id = finalId;
+                            dbHelper.updateLink(link);
+                        }
+                        else
+                            dbHelper.addNewLink(link);
+
                     } catch (Exception ex) {
                         Toast.makeText(MainActivity.this, getString(R.string.error_db_link), Toast.LENGTH_SHORT).show();
                     }
+
                     dialog.dismiss();
+                    refreshRecyclerView();
                 }
             }
         });
@@ -222,14 +252,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 newCategoryDialog(true);
-            }
-        });
-
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-
-                //setItemsRutinas();
             }
         });
 
@@ -276,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, getString(R.string.error_db_category), Toast.LENGTH_SHORT).show();
                     }
                     dialog.dismiss();
+                    refreshRecyclerView();
                 }
             }
         });
@@ -361,6 +384,20 @@ public class MainActivity extends AppCompatActivity {
                 Matcher mat = patron.matcher(string);
 
         return mat.matches();
+    }
+
+    public void refreshRecyclerView() {
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
+        Fragment currentFragment = navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
+
+        if (currentFragment instanceof LinksFragment) {
+            LinksFragment linksFragment = (LinksFragment) currentFragment;
+            linksFragment.OnCreatedLinkListener();
+        }
+        else if (currentFragment instanceof CategoriesFragment) {
+            CategoriesFragment categoriesFragment = (CategoriesFragment) currentFragment;
+            //categoriesFragment.OnCreatedLinkListener();
+        }
     }
 
     //endregion

@@ -12,13 +12,26 @@
     <string name="item_add">Add</string>
     <string name="item_search">Search</string>
     <string name="item_more">More</string>
+    <string name="item_edit">Edit</string>
+    <string name="item_delete">Delete</string>
+    <string name="item_share">Share</string>
+    <string name="item_copy">Copy</string>
+    <string name="item_sort">Sort</string>
 
     <string name="text_create">Create</string>
     <string name="text_cancel">Cancel</string>
+    <string name="text_update">Update</string>
     <string name="text_create_link">Create new link</string>
     <string name="text_create_category">Create new category</string>
+    <string name="text_modify_link">Edit link</string>
     <string name="text_add_favorite">Add to favorite</string>
     <string name="text_add_private">Add to private</string>
+    <string name="text_delete_link">Do you want to delete this link permanently?</string>
+    <string name="text_delete_category">Do you want to delete this category permanently?</string>
+    <string name="text_placeholder" translatable="false">Text placeholder</string>
+    <string name="text_clipboard">URL copied to clipboard</string>
+    <string name="text_no_links">No links were added yet.</string>
+    <string name="text_no_categories">No categories were added yet.</string>
 
     <string name="error_title_link_empty">The link title is empty</string>
     <string name="error_title_category_empty">The category title is empty</string>

@@ -10,14 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/nav_toolbar"
-        android:background="@color/white"
-        app:titleTextColor="@color/black"
+        android:background="@color/primaryBlue"
+        app:titleTextColor="@color/white"
         app:title="Test"
         app:titleMarginStart="10dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:layout_constraintTop_toTopOf="parent"
-        android:elevation="10dp" />
+        android:elevation="2dp" />
 
     <fragment
         android:id="@+id/nav_host_fragment_activity_main"
