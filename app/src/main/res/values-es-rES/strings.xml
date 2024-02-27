@@ -30,6 +30,8 @@
     <string name="default_category5">Media</string>
     <string name="default_category6">Otros</string>
     <string name="text_clipboard">URL copiada al portapapeles</string>
+    <string name="text_sort_title">Por título</string>
+    <string name="text_sort_newest">Más reciente</string>
     <string name="error_title_link_empty">El título del enlace está vacío</string>
     <string name="error_title_category_empty">El título de la categoría está vacío</string>
     <string name="error_db_category">Se ha producido un error al crear la categoría</string>
@@ -41,4 +43,5 @@
     <string name="text_no_links">Todavía no se han añadido enlaces.</string>
     <string name="text_no_categories">Todavía no se han añadido categorías.</string>
     <string name="item_sort">Ordenar</string>
+    <string name="text_sort_oldest">Más antiguo</string>
 </resources>

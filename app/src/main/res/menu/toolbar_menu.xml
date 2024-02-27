@@ -6,13 +6,14 @@
         android:title="@string/item_search"
         android:id="@+id/item_search"
         android:icon="@drawable/ic_search_40dp"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="androidx.appcompat.widget.SearchView" />
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:queryHint="@string/item_search"/>
 
     <item
         android:title="@string/item_sort"
         android:id="@+id/item_sort"
         android:icon="@drawable/ic_sort_40dp"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
 </menu>

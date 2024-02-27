@@ -32,6 +32,9 @@
     <string name="text_clipboard">URL copied to clipboard</string>
     <string name="text_no_links">No links were added yet.</string>
     <string name="text_no_categories">No categories were added yet.</string>
+    <string name="text_sort_title">By title</string>
+    <string name="text_sort_newest">By newest</string>
+    <string name="text_sort_oldest">By oldest</string>
 
     <string name="error_title_link_empty">The link title is empty</string>
     <string name="error_title_category_empty">The category title is empty</string>

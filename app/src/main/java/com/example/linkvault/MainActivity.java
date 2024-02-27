@@ -1,8 +1,6 @@
 package com.example.linkvault;
 
 import android.app.Dialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -11,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -22,14 +21,15 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -39,6 +39,7 @@ import com.example.linkvault.databinding.ActivityMainBinding;
 import com.example.linkvault.models.Category;
 import com.example.linkvault.models.Link;
 import com.example.linkvault.ui.categories.CategoriesFragment;
+import com.example.linkvault.ui.favorites.FavoritesFragment;
 import com.example.linkvault.ui.links.LinksFragment;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private LinkVaultBD dbHelper;
     private AutoCompleteTextView auto_complete_textView;
+    private SearchView searchView;
 
     private String selectedCategory;
 
@@ -86,7 +88,63 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
 
+        MenuItem searchMenuItem = menu.findItem(R.id.item_search);
+        searchView = (SearchView) searchMenuItem.getActionView();
+
+        Fragment currentFragment = getCurrentFragment();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                if (currentFragment instanceof LinksFragment) {
+                    LinksFragment linksFragment = (LinksFragment) currentFragment;
+                    linksFragment.searchLinks(newText);
+                }
+                else if (currentFragment instanceof CategoriesFragment) {
+                    CategoriesFragment categoriesFragment = (CategoriesFragment) currentFragment;
+                    //categoriesFragment.OnCreatedLinkListener();
+                }
+                else if (currentFragment instanceof FavoritesFragment) {
+                    FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+                    favoritesFragment.searchLinks(newText);
+                }
+
+                return false;
+            }
+        });
+
+        searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item)
+            {
+                menu.findItem(R.id.item_sort).setVisible(true);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item)
+            {
+                menu.findItem(R.id.item_sort).setVisible(false);
+                return true;
+            }
+        });
+
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.item_sort) {
+            showSortOptionsDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setListeners() {
@@ -97,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     //endregion
 
     // region Shared Preferences
@@ -323,6 +382,59 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void showSortOptionsDialog() {
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.sort_dialog);
+
+        RadioGroup radioGroup = dialog.findViewById(R.id.rg_sort_items);
+
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        params.gravity = Gravity.CENTER;
+        params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
+        Fragment currentFragment = getCurrentFragment();
+        SharedPreferences preferences = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+
+        int lastCheckedId = 0;
+
+        if (currentFragment instanceof LinksFragment) {
+            lastCheckedId = preferences.getInt(Constants.KEY_SORT_LINK, R.id.rb_title);
+        }
+        else if (currentFragment instanceof FavoritesFragment) {
+            lastCheckedId = preferences.getInt(Constants.KEY_SORT_FAV, R.id.rb_title);
+        }
+        radioGroup.check(lastCheckedId);
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+                SharedPreferences.Editor editor = preferences.edit();
+
+                if (currentFragment instanceof LinksFragment) {
+                    editor.putInt(Constants.KEY_SORT_LINK, checkedId);
+                }
+                else if (currentFragment instanceof FavoritesFragment) {
+                    editor.putInt(Constants.KEY_SORT_FAV, checkedId);
+                }
+                editor.apply();
+
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                refreshRecyclerView();
+            }
+        });
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+    }
+
     //endregion
 
     //region Other Methods
@@ -386,9 +498,16 @@ public class MainActivity extends AppCompatActivity {
         return mat.matches();
     }
 
-    public void refreshRecyclerView() {
+    private Fragment getCurrentFragment() {
+
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         Fragment currentFragment = navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
+
+        return currentFragment;
+    }
+
+    public void refreshRecyclerView() {
+        Fragment currentFragment = getCurrentFragment();
 
         if (currentFragment instanceof LinksFragment) {
             LinksFragment linksFragment = (LinksFragment) currentFragment;
@@ -397,6 +516,10 @@ public class MainActivity extends AppCompatActivity {
         else if (currentFragment instanceof CategoriesFragment) {
             CategoriesFragment categoriesFragment = (CategoriesFragment) currentFragment;
             //categoriesFragment.OnCreatedLinkListener();
+        }
+        else if (currentFragment instanceof FavoritesFragment) {
+            FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
+            favoritesFragment.OnCreatedLinkListener();
         }
     }
 

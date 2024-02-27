@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -26,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.linkvault.LinkVaultBD;
 import com.example.linkvault.MainActivity;
 import com.example.linkvault.R;
-import com.example.linkvault.models.Category;
 import com.example.linkvault.models.Link;
 
 import java.util.List;
@@ -198,6 +196,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { clipboardIntent });
 
         v.getContext().startActivity(chooserIntent);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setFilter(List<Link> newList) {
+        localDataSet = newList;
+        notifyDataSetChanged();
     }
 }
 
