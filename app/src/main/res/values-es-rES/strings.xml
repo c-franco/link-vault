@@ -44,4 +44,8 @@
     <string name="text_no_categories">Todavía no se han añadido categorías.</string>
     <string name="item_sort">Ordenar</string>
     <string name="text_sort_oldest">Más antiguo</string>
+    <string name="title_categoryLinks">Enlaces de la categoría</string>
+    <string name="text_modify_category">Editar categoría</string>
+    <string name="text_no_links_in_category">No hay enlaces para compartir en esta categoría</string>
+    <string name="default_category0">Sin categoría</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.example.linkvault.ui.links;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -26,6 +27,7 @@ import com.example.linkvault.LinkVaultBD;
 import com.example.linkvault.MainActivity;
 import com.example.linkvault.R;
 import com.example.linkvault.models.Link;
+import com.example.linkvault.ui.categories.CategoryLinksActivity;
 
 import java.util.List;
 
@@ -33,6 +35,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
 
     private List<Link> localDataSet;
     private MainActivity context;
+    private CategoryLinksActivity categoryLinksActivity;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -62,9 +65,10 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
         }
     }
 
-    public LinksAdapter(List<Link> dataSet, MainActivity mainActivity) {
+    public LinksAdapter(List<Link> dataSet, MainActivity mainActivity, CategoryLinksActivity _categoryLinksActivity) {
         localDataSet = dataSet;
         context = mainActivity;
+        categoryLinksActivity = _categoryLinksActivity;
     }
 
     @Override
@@ -129,11 +133,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
         viewHolder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                Activity activity = (context != null) ? context : categoryLinksActivity;
+                ClipboardManager clipboardManager = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clipData = ClipData.newPlainText("URL", link.url);
                 clipboardManager.setPrimaryClip(clipData);
 
-                Toast.makeText(context, v.getContext().getString(R.string.text_clipboard), Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, v.getContext().getString(R.string.text_clipboard), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -144,7 +149,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
     }
 
     private void editLink(Link link) {
-        context.newLinkDialog(link, true);
+
+        if(context != null) {
+            context.newLinkDialog(link, true);
+        } else {
+            categoryLinksActivity.newLinkDialog(link, true);
+        }
     }
 
     private void deleteLink(View v, int id) {
@@ -165,7 +175,12 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
                 LinkVaultBD dbHelper = new LinkVaultBD(v.getContext());
 
                 dbHelper.deleteLinkById(id);
-                context.refreshRecyclerView();
+
+                if(context != null) {
+                    context.refreshRecyclerView();
+                } else {
+                    categoryLinksActivity.loadRecyclerViewData();
+                }
 
                 dialog.dismiss();
             }

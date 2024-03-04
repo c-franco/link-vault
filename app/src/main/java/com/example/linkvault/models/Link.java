@@ -10,5 +10,4 @@ public class Link {
     public int idCategory;
     public boolean isFavorite;
     public boolean isPrivate;
-    public Date timestamp;
 }

@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tv_create_link"
+        android:id="@+id/tv_create_category"
         android:text="@string/text_create_category"
         android:textAlignment="center"
         android:textColor="@color/black"

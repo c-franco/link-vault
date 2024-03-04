@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -86,7 +85,7 @@ public class LinksFragment extends Fragment {
 
     private void loadRecyclerViewData() {
         linkList = dbHelper.getAllLinks();
-        linksAdapter = new LinksAdapter(linkList, (MainActivity) getActivity());
+        linksAdapter = new LinksAdapter(linkList, (MainActivity) getActivity(), null);
         recyclerView_links.setAdapter(linksAdapter);
         tv_empty_link_list.setVisibility(linkList.isEmpty() ? View.VISIBLE : View.GONE);
     }

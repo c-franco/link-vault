@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        Singleton.getInstance().setMainActivityInstance(this);
 
         // Database setup
         dbHelper = new LinkVaultBD(MainActivity.this);
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if (currentFragment instanceof CategoriesFragment) {
                     CategoriesFragment categoriesFragment = (CategoriesFragment) currentFragment;
-                    //categoriesFragment.OnCreatedLinkListener();
+                    categoriesFragment.searchCategories(newText);
                 }
                 else if (currentFragment instanceof FavoritesFragment) {
                     FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 dialog.dismiss();
-                newCategoryDialog(false);
+                newCategoryDialog(false, false, null);
             }
         });
 
@@ -239,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
         params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
         int id = 0;
+        auto_complete_textView.setText(getString(R.string.default_category0));
 
         if(edit) {
             dialogTitle.setText(getString(R.string.text_modify_link));
@@ -276,9 +278,6 @@ public class MainActivity extends AppCompatActivity {
                 else if(!validUrl(url)) {
                     Toast.makeText(MainActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
                 }
-                else if(selectedCategory == null) {
-                    Toast.makeText(MainActivity.this, getString(R.string.error_category_empty), Toast.LENGTH_SHORT).show();
-                }
                 else {
                     try {
                         int idCategory = dbHelper.getCategoryId(selectedCategory);
@@ -310,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         createCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                newCategoryDialog(true);
+                newCategoryDialog(true, false, null);
             }
         });
 
@@ -325,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public void newCategoryDialog(boolean parent) {
+    public void newCategoryDialog(boolean parent, boolean edit, Category category) {
 
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.category_detail);
@@ -333,11 +332,24 @@ public class MainActivity extends AppCompatActivity {
         Button cancelButton = dialog.findViewById(R.id.bt_cancel_category);
         Button createButton = dialog.findViewById(R.id.bt_create_category);
         TextView titleText = dialog.findViewById(R.id.et_title_category);
+        TextView dialogTitle = dialog.findViewById(R.id.tv_create_category);
 
         WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
         params.gravity = Gravity.CENTER;
         params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
+        int id = 0;
+
+        if(edit) {
+            dialogTitle.setText(getString(R.string.text_modify_category));
+            cancelButton.setText(R.string.text_cancel);
+            createButton.setText(getString(R.string.text_update));
+
+            id = category.id;
+            titleText.setText(category.title);
+        }
+
+        int finalId = id;
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -352,7 +364,14 @@ public class MainActivity extends AppCompatActivity {
                         Category category = new Category();
                         category.title = title;
 
-                        dbHelper.addNewCategory(category);
+                        if (edit) {
+                            category.id = finalId;
+                            dbHelper.updateCategory(category);
+                        }
+                        else {
+                            dbHelper.addNewCategory(category);
+                        }
+
                     } catch (Exception ex) {
                         Toast.makeText(MainActivity.this, getString(R.string.error_db_category), Toast.LENGTH_SHORT).show();
                     }
@@ -401,6 +420,9 @@ public class MainActivity extends AppCompatActivity {
         if (currentFragment instanceof LinksFragment) {
             lastCheckedId = preferences.getInt(Constants.KEY_SORT_LINK, R.id.rb_title);
         }
+        else if (currentFragment instanceof CategoriesFragment) {
+            lastCheckedId = preferences.getInt(Constants.KEY_SORT_CAT, R.id.rb_title);
+        }
         else if (currentFragment instanceof FavoritesFragment) {
             lastCheckedId = preferences.getInt(Constants.KEY_SORT_FAV, R.id.rb_title);
         }
@@ -415,9 +437,13 @@ public class MainActivity extends AppCompatActivity {
                 if (currentFragment instanceof LinksFragment) {
                     editor.putInt(Constants.KEY_SORT_LINK, checkedId);
                 }
+                else if (currentFragment instanceof CategoriesFragment) {
+                    editor.putInt(Constants.KEY_SORT_CAT, checkedId);
+                }
                 else if (currentFragment instanceof FavoritesFragment) {
                     editor.putInt(Constants.KEY_SORT_FAV, checkedId);
                 }
+
                 editor.apply();
 
                 dialog.dismiss();
@@ -442,6 +468,7 @@ public class MainActivity extends AppCompatActivity {
     private void createCategories() {
 
         if(isFirstTime()) {
+            Category category0 = new Category(getString(R.string.default_category0));
             Category category1 = new Category(getString(R.string.default_category1));
             Category category2 = new Category(getString(R.string.default_category2));
             Category category3 = new Category(getString(R.string.default_category3));
@@ -450,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
             Category category6 = new Category(getString(R.string.default_category6));
 
             List<Category> categoryList = new ArrayList<>();
+            categoryList.add(category0);
             categoryList.add(category1);
             categoryList.add(category2);
             categoryList.add(category3);
@@ -515,12 +543,16 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (currentFragment instanceof CategoriesFragment) {
             CategoriesFragment categoriesFragment = (CategoriesFragment) currentFragment;
-            //categoriesFragment.OnCreatedLinkListener();
+            categoriesFragment.OnCreatedLinkListener();
         }
         else if (currentFragment instanceof FavoritesFragment) {
             FavoritesFragment favoritesFragment = (FavoritesFragment) currentFragment;
             favoritesFragment.OnCreatedLinkListener();
         }
+    }
+
+    public MainActivity getMainActivity() {
+        return MainActivity.this;
     }
 
     //endregion

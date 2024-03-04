@@ -44,4 +44,8 @@
     <string name="text_no_categories">No categories were added yet.</string>
     <string name="item_sort">Sort</string>
     <string name="text_sort_oldest">By oldest</string>
+    <string name="title_categoryLinks">Category Links</string>
+    <string name="text_modify_category">Edit category</string>
+    <string name="text_no_links_in_category">There are no links to share in this category</string>
+    <string name="default_category0">No category</string>
 </resources>
