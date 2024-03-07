@@ -157,6 +157,9 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
         Button cancelButton = dialog.findViewById(R.id.bt_cancel_delete);
         Button deleteButton = dialog.findViewById(R.id.bt_confirm_delete);
         TextView tv_delete_text = dialog.findViewById(R.id.tv_delete_text);
+        TextView subText = dialog.findViewById(R.id.tv_delete_text_message);
+
+        subText.setVisibility(View.VISIBLE);
 
         WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
         params.gravity = Gravity.CENTER;

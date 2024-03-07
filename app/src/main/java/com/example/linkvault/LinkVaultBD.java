@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.Editable;
+import android.widget.Toast;
 
 import com.example.linkvault.models.Category;
 import com.example.linkvault.models.Link;
@@ -82,14 +84,20 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
     public void addNewCategory(Category category) {
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
+        if(categoryExist(category.title)) {
+            Toast.makeText(this.context, this.context.getString(R.string.error_db_repeated_category), Toast.LENGTH_SHORT).show();
+        }
+        else {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(TITLE_COL, category.title);
+            values.put(TIMESTAMP_COL, getCurrentTimestamp());
 
-        values.put(TITLE_COL, category.title);
-        values.put(TIMESTAMP_COL, getCurrentTimestamp());
+            db.insert(CATEGORIES_TABLE, null, values);
+            db.close();
+        }
 
-        db.insert(CATEGORIES_TABLE, null, values);
-        db.close();
+
     }
 
     // endregion
@@ -104,7 +112,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         int sortOption = preferences.getInt(Constants.KEY_SORT_LINK, 0);
 
         try (SQLiteDatabase db = this.getReadableDatabase();
-             Cursor cursor = db.query(LINKS_TABLE, new String[]{ID_COL, URL_COL, TITLE_COL, ID_CATEGORY_COL, IS_FAVORITE_COL, IS_PRIVATE_COL},
+             Cursor cursor = db.query(LINKS_TABLE, new String[]{ID_COL, URL_COL, TITLE_COL, ID_CATEGORY_COL, IS_FAVORITE_COL, IS_PRIVATE_COL, TIMESTAMP_COL},
                      null, null, null, null, getSortClause(sortOption))) {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
@@ -115,6 +123,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
                     link.idCategory = cursor.getInt(cursor.getColumnIndex(ID_CATEGORY_COL));
                     link.isFavorite = cursor.getInt(cursor.getColumnIndex(IS_FAVORITE_COL)) > 0;
                     link.isPrivate = cursor.getInt(cursor.getColumnIndex(IS_PRIVATE_COL)) > 0;
+                    link.timestamp = cursor.getString(cursor.getColumnIndex(TIMESTAMP_COL));
 
                     linkList.add(link);
                 } while (cursor.moveToNext());
@@ -227,6 +236,19 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void moveLinkToCategory(Link link, int categoryId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(ID_CATEGORY_COL, categoryId);
+
+        String whereClause = ID_COL + "=?";
+        String[] whereArgs = {String.valueOf(link.id)};
+
+        db.update(LINKS_TABLE, values, whereClause, whereArgs);
+        db.close();
+    }
+
     public void deleteLinkById(int linkId) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -274,7 +296,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         int sortOption = preferences.getInt(Constants.KEY_SORT_CAT, 0);
 
         try (SQLiteDatabase db = this.getReadableDatabase();
-             Cursor cursor = db.query(CATEGORIES_TABLE, new String[]{ID_COL,TITLE_COL},
+             Cursor cursor = db.query(CATEGORIES_TABLE, new String[]{ID_COL,TITLE_COL,TIMESTAMP_COL},
                      null, null, null, null, getSortClause(sortOption))) {
 
             if (cursor != null && cursor.moveToFirst()) {
@@ -282,6 +304,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
                     Category category = new Category();
                     category.id = cursor.getInt(cursor.getColumnIndex(ID_COL));;
                     category.title = cursor.getString(cursor.getColumnIndex(TITLE_COL));
+                    category.timestamp = cursor.getString(cursor.getColumnIndex(TIMESTAMP_COL));
                     categories.add(category);
 
                 } while (cursor.moveToNext());
@@ -360,9 +383,54 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         db.close();
     }
 
+    private boolean categoryExist(String title) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {ID_COL};
+        String selection = TITLE_COL + "=?";
+        String[] selectionArgs = {title};
+
+        try (Cursor cursor = db.query(CATEGORIES_TABLE, columns, selection, selectionArgs, null, null, null)) {
+            return cursor != null && cursor.moveToFirst();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.close();
+        }
+    }
+
+    // endregion
+
+    // region Import / Export
+
+    public String exportToCSV() {
+        StringBuilder csvData = new StringBuilder();
+
+        List<Link> links = getAllLinks();
+        csvData.append("ID,URL,TITLE,ID_CATEGORY,IS_FAVORITE,IS_PRIVATE,TIMESTAMP\n");
+        for (Link link : links) {
+            csvData.append(link.toCSV()).append("\n");
+        }
+
+        List<Category> categories = getAllCategories();
+        csvData.append("\nID,TITLE,TIMESTAMP\n");
+        for (Category category : categories) {
+            csvData.append(category.toCSV()).append("\n");
+        }
+
+        return csvData.toString();
+    }
+
     // endregion
 
     // region Other methods
+
+    public void deleteAllData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + LINKS_TABLE);
+        db.execSQL("DELETE FROM " + CATEGORIES_TABLE);
+        db.close();
+    }
 
     private String getCurrentTimestamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

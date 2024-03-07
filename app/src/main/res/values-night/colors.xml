@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryBlue">#337ead</color>
+
+    <color name="black">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="light_grey">#FFFFFF</color>
+    <color name="light_white">#333333</color>
+    <color name="select_color">#6D50BCFF</color>
+
+    <color name="toolbar_color">#333333</color>
+    <color name="add_button">#2E2E2E</color>
+    <color name="white_dialog">#333333</color>
+    <color name="settings">#4A4A4A</color>
+    <color name="floatingbutton">#FFFFFF</color>
+
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+</resources>

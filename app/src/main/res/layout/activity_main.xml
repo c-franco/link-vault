@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/nav_toolbar"
-        android:background="@color/primaryBlue"
+        android:background="@color/toolbar_color"
         app:titleTextColor="@color/white"
         app:title="Test"
         app:titleMarginStart="10dp"
@@ -69,12 +69,12 @@
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="@color/add_button"
             android:id="@+id/fab_button"
             android:src="@drawable/ic_add_24dp"
             app:layout_anchor="@id/bottom_bar_app"
             app:maxImageSize="40dp"
-            app:tint="@color/primaryBlue"
+            app:tint="@color/floatingbutton"
             app:borderWidth="0dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

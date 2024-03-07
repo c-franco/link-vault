@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -41,9 +43,11 @@ import com.example.linkvault.models.Link;
 import com.example.linkvault.ui.categories.CategoriesFragment;
 import com.example.linkvault.ui.favorites.FavoritesFragment;
 import com.example.linkvault.ui.links.LinksFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,12 +58,16 @@ public class MainActivity extends AppCompatActivity {
     private LinkVaultBD dbHelper;
     private AutoCompleteTextView auto_complete_textView;
     private SearchView searchView;
+    private BottomNavigationView bottomNavView;
 
     private String selectedCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setLanguage();
+        setDarkMode();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -73,11 +81,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // Navigation setup
+        bottomNavView = findViewById(R.id.nav_view);
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        // Desactivar modo noche por defecto
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         setListeners();
         createCategories();
@@ -470,7 +476,6 @@ public class MainActivity extends AppCompatActivity {
         if(isFirstTime()) {
             Category category0 = new Category(getString(R.string.default_category0));
             Category category1 = new Category(getString(R.string.default_category1));
-            Category category2 = new Category(getString(R.string.default_category2));
             Category category3 = new Category(getString(R.string.default_category3));
             Category category4 = new Category(getString(R.string.default_category4));
             Category category5 = new Category(getString(R.string.default_category5));
@@ -479,7 +484,6 @@ public class MainActivity extends AppCompatActivity {
             List<Category> categoryList = new ArrayList<>();
             categoryList.add(category0);
             categoryList.add(category1);
-            categoryList.add(category2);
             categoryList.add(category3);
             categoryList.add(category4);
             categoryList.add(category5);
@@ -553,6 +557,43 @@ public class MainActivity extends AppCompatActivity {
 
     public MainActivity getMainActivity() {
         return MainActivity.this;
+    }
+
+    private void setLanguage() {
+        SharedPreferences preferences = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        String languageCode = preferences.getString(Constants.KEY_LANGUAGE, Locale.getDefault().getLanguage());
+
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+    }
+
+    public void refreshBottomNavView() {
+        Menu menu = bottomNavView.getMenu();
+
+        MenuItem item1 = menu.findItem(R.id.navigation_links);
+        MenuItem item2 = menu.findItem(R.id.navigation_categories);
+        MenuItem item3 = menu.findItem(R.id.navigation_favorites);
+        MenuItem item4 = menu.findItem(R.id.navigation_settings);
+
+        item1.setTitle(getString(R.string.title_links));
+        item2.setTitle(getString(R.string.title_categories));
+        item3.setTitle(getString(R.string.title_favorites));
+        item4.setTitle(getString(R.string.title_settings));
+    }
+
+    private void setDarkMode() {
+        SharedPreferences preferences = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        boolean darkmode = preferences.getBoolean(Constants.KEY_DARK_MODE, false);
+
+        if(darkmode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 
     //endregion

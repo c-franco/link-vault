@@ -48,4 +48,22 @@
     <string name="text_modify_category">Editar categoría</string>
     <string name="text_no_links_in_category">No hay enlaces para compartir en esta categoría</string>
     <string name="default_category0">Sin categoría</string>
+    <string name="text_delete_category_links">Se van a borrar todos los enlaces asociados a esta categoría.</string>
+    <string name="text_move">Mover enlaces</string>
+    <string name="item_move">Mover</string>
+    <string name="text_move_items_to_category">Elige una categoría para mover los enlaces seleccionados</string>
+    <string name="error_db_repeated_category">Ya existe una categoría con ese nombre</string>
+    <string name="error_no_links_selected">Ningún enlace seleccionado</string>
+    <string name="setting_language">Idioma</string>
+    <string name="setting_dark_mode">Modo oscuro</string>
+    <string name="setting_export_links">Exportar enlaces</string>
+    <string name="setting_import_links">Importar enlaces</string>
+    <string name="setting_delete_data">Borrar todos los datos</string>
+    <string name="setting_version">Versión</string>
+    <string name="text_delete_all_data">¿Seguro que quieres borrar todos los datos?</string>
+    <string name="text_data_deleted">Todos los datos borrados</string>
+    <string name="text_order">Ordenar por</string>
+    <string name="text_select_language">Selecciona un idioma</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_english">Inglés</string>
 </resources>

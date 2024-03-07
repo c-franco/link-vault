@@ -33,7 +33,7 @@ import java.util.List;
 
 public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> {
 
-    private List<Link> localDataSet;
+    public List<Link> localDataSet;
     private MainActivity context;
     private CategoryLinksActivity categoryLinksActivity;
 
@@ -53,7 +53,6 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
             tv_goto_icon = view.findViewById(R.id.tv_goto_icon);
             tv_more_icon = view.findViewById(R.id.tv_more_icon);
             linearLayout = view.findViewById(R.id.linear_layout_link);
-
         }
 
         public TextView getLinkTextView() {
@@ -141,6 +140,20 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
                 Toast.makeText(activity, v.getContext().getString(R.string.text_clipboard), Toast.LENGTH_SHORT).show();
             }
         });
+
+        if(categoryLinksActivity != null) {
+            viewHolder.linearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+
+                    link.setSelected(!link.isSelected());
+                    viewHolder.linearLayout.setBackgroundColor(link.isSelected() ?
+                            categoryLinksActivity.getColor(R.color.select_color) : categoryLinksActivity.getColor(R.color.white));
+
+                    return true;
+                }
+            });
+        }
     }
 
     @Override
@@ -163,6 +176,9 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
 
         Button cancelButton = dialog.findViewById(R.id.bt_cancel_delete);
         Button deleteButton = dialog.findViewById(R.id.bt_confirm_delete);
+        TextView subText = dialog.findViewById(R.id.tv_delete_text_message);
+
+        subText.setVisibility(View.GONE);
 
         WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
         params.gravity = Gravity.CENTER;
