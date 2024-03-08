@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_links"
-        android:name="com.example.linkvault.ui.links.LinksFragment"
+        android:name="com.breathink.linkvault.ui.links.LinksFragment"
         android:label="@string/title_links"
         tools:layout="@layout/fragment_links" />
 
     <fragment
         android:id="@+id/navigation_categories"
-        android:name="com.example.linkvault.ui.categories.CategoriesFragment"
+        android:name="com.breathink.linkvault.ui.categories.CategoriesFragment"
         android:label="@string/title_categories"
         tools:layout="@layout/fragment_categories" />
 
     <fragment
         android:id="@+id/navigation_favorites"
-        android:name="com.example.linkvault.ui.favorites.FavoritesFragment"
+        android:name="com.breathink.linkvault.ui.favorites.FavoritesFragment"
         android:label="@string/title_favorites"
         tools:layout="@layout/fragment_favorites" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.example.linkvault.ui.settings.SettingsFragment"
+        android:name="com.breathink.linkvault.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 

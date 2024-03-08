@@ -1,6 +1,5 @@
-package com.example.linkvault.models;
+package com.breathink.linkvault.models;
 
-import java.util.Date;
 import java.util.Locale;
 
 public class Link {

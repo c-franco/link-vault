@@ -1,4 +1,4 @@
-package com.example.linkvault.ui.settings;
+package com.breathink.linkvault.ui.settings;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -16,7 +16,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,26 +30,21 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.biometric.BiometricPrompt;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.example.linkvault.Constants;
-import com.example.linkvault.LinkVaultBD;
-import com.example.linkvault.MainActivity;
-import com.example.linkvault.R;
-import com.example.linkvault.databinding.FragmentSettingsBinding;
-import com.example.linkvault.ui.links.PrivateLinksActivity;
+import com.breathink.linkvault.Constants;
+import com.breathink.linkvault.LinkVaultBD;
+import com.breathink.linkvault.MainActivity;
+import com.breathink.linkvault.R;
+import com.breathink.linkvault.databinding.FragmentSettingsBinding;
+import com.breathink.linkvault.ui.links.PrivateLinksActivity;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.example.linkvault.models;
+package com.breathink.linkvault.models;
 
 import java.util.Locale;
 

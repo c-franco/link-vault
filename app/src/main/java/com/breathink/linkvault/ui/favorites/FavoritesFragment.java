@@ -1,4 +1,4 @@
-package com.example.linkvault.ui.favorites;
+package com.breathink.linkvault.ui.favorites;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -14,12 +14,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.linkvault.LinkVaultBD;
-import com.example.linkvault.MainActivity;
-import com.example.linkvault.R;
-import com.example.linkvault.databinding.FragmentFavoritesBinding;
-import com.example.linkvault.models.Link;
-import com.example.linkvault.ui.links.LinksAdapter;
+import com.breathink.linkvault.LinkVaultBD;
+import com.breathink.linkvault.MainActivity;
+import com.breathink.linkvault.R;
+import com.breathink.linkvault.databinding.FragmentFavoritesBinding;
+import com.breathink.linkvault.models.Link;
+import com.breathink.linkvault.ui.links.LinksAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

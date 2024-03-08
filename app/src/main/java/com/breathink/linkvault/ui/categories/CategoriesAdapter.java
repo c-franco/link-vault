@@ -1,11 +1,10 @@
-package com.example.linkvault.ui.categories;
+package com.breathink.linkvault.ui.categories;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,10 +20,10 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.linkvault.LinkVaultBD;
-import com.example.linkvault.MainActivity;
-import com.example.linkvault.R;
-import com.example.linkvault.models.Category;
+import com.breathink.linkvault.LinkVaultBD;
+import com.breathink.linkvault.MainActivity;
+import com.breathink.linkvault.R;
+import com.breathink.linkvault.models.Category;
 
 import java.util.List;
 

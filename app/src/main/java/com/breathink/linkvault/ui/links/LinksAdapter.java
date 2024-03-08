@@ -1,4 +1,4 @@
-package com.example.linkvault.ui.links;
+package com.breathink.linkvault.ui.links;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -23,11 +23,11 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.linkvault.LinkVaultBD;
-import com.example.linkvault.MainActivity;
-import com.example.linkvault.R;
-import com.example.linkvault.models.Link;
-import com.example.linkvault.ui.categories.CategoryLinksActivity;
+import com.breathink.linkvault.LinkVaultBD;
+import com.breathink.linkvault.MainActivity;
+import com.breathink.linkvault.R;
+import com.breathink.linkvault.models.Link;
+import com.breathink.linkvault.ui.categories.CategoryLinksActivity;
 
 import java.util.List;
 

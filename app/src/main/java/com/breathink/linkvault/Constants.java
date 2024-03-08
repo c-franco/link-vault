@@ -1,4 +1,4 @@
-package com.example.linkvault;
+package com.breathink.linkvault;
 
 public class Constants {
 

@@ -1,11 +1,9 @@
-package com.example.linkvault;
+package com.breathink.linkvault;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -33,19 +31,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.linkvault.databinding.ActivityMainBinding;
-import com.example.linkvault.models.Category;
-import com.example.linkvault.models.Link;
-import com.example.linkvault.ui.categories.CategoriesFragment;
-import com.example.linkvault.ui.favorites.FavoritesFragment;
-import com.example.linkvault.ui.links.LinksFragment;
+import com.breathink.linkvault.databinding.ActivityMainBinding;
+import com.breathink.linkvault.models.Category;
+import com.breathink.linkvault.models.Link;
+import com.breathink.linkvault.ui.categories.CategoriesFragment;
+import com.breathink.linkvault.ui.favorites.FavoritesFragment;
+import com.breathink.linkvault.ui.links.LinksFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;

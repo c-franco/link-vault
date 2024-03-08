@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.linkvault"
+    namespace = "com.breathink.linkvault"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.linkvault"
+        applicationId = "com.breathink.linkvault"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

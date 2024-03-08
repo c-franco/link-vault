@@ -1,4 +1,4 @@
-package com.example.linkvault;
+package com.breathink.linkvault;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -7,11 +7,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.Editable;
 import android.widget.Toast;
 
-import com.example.linkvault.models.Category;
-import com.example.linkvault.models.Link;
+import com.breathink.linkvault.models.Category;
+import com.breathink.linkvault.models.Link;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
