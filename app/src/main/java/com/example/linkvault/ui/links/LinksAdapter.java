@@ -36,6 +36,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
     public List<Link> localDataSet;
     private MainActivity context;
     private CategoryLinksActivity categoryLinksActivity;
+    private PrivateLinksActivity privateLinksActivity;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -64,10 +65,11 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
         }
     }
 
-    public LinksAdapter(List<Link> dataSet, MainActivity mainActivity, CategoryLinksActivity _categoryLinksActivity) {
+    public LinksAdapter(List<Link> dataSet, MainActivity mainActivity, CategoryLinksActivity _categoryLinksActivity, PrivateLinksActivity _privateLinksActivity) {
         localDataSet = dataSet;
         context = mainActivity;
         categoryLinksActivity = _categoryLinksActivity;
+        privateLinksActivity = _privateLinksActivity;
     }
 
     @Override
@@ -132,7 +134,16 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
         viewHolder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Activity activity = (context != null) ? context : categoryLinksActivity;
+                Activity activity = null;
+
+                if(context != null) {
+                    activity = context;
+                } else if(categoryLinksActivity != null) {
+                    activity = categoryLinksActivity;
+                } else if(privateLinksActivity != null) {
+                    activity = privateLinksActivity;
+                }
+
                 ClipboardManager clipboardManager = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clipData = ClipData.newPlainText("URL", link.url);
                 clipboardManager.setPrimaryClip(clipData);
@@ -165,8 +176,10 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
 
         if(context != null) {
             context.newLinkDialog(link, true);
-        } else {
+        } else if(categoryLinksActivity != null){
             categoryLinksActivity.newLinkDialog(link, true);
+        } else if(privateLinksActivity != null){
+            privateLinksActivity.newLinkDialog(link, true);
         }
     }
 
@@ -194,8 +207,10 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
 
                 if(context != null) {
                     context.refreshRecyclerView();
-                } else {
+                } else if(categoryLinksActivity != null){
                     categoryLinksActivity.loadRecyclerViewData();
+                } else if(privateLinksActivity != null){
+                    privateLinksActivity.loadRecyclerViewData();
                 }
 
                 dialog.dismiss();

@@ -1,15 +1,22 @@
 package com.example.linkvault.ui.settings;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,11 +31,17 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -37,11 +50,14 @@ import com.example.linkvault.LinkVaultBD;
 import com.example.linkvault.MainActivity;
 import com.example.linkvault.R;
 import com.example.linkvault.databinding.FragmentSettingsBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
+import com.example.linkvault.ui.links.PrivateLinksActivity;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Locale;
 
 public class SettingsFragment extends Fragment {
@@ -51,6 +67,7 @@ public class SettingsFragment extends Fragment {
     private LinkVaultBD dbHelper;
 
     private LinearLayout layout_language;
+    private LinearLayout layout_private_links;
     private LinearLayout layout_export;
     private LinearLayout layout_import;
     private LinearLayout layout_delete;
@@ -120,6 +137,7 @@ public class SettingsFragment extends Fragment {
 
     private void getComponents() {
         layout_language = root.findViewById(R.id.layout_language);
+        layout_private_links = root.findViewById(R.id.layout_private_links);
         layout_export = root.findViewById(R.id.layout_export);
         layout_import = root.findViewById(R.id.layout_import);
         layout_delete = root.findViewById(R.id.layout_delete);
@@ -136,6 +154,13 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        layout_private_links.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                authenticateUser();
+            }
+        });
+
         layout_export.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,7 +171,13 @@ public class SettingsFragment extends Fragment {
         layout_import.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(checkPerms()) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.setType("text/comma-separated-values");
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
 
+                    startActivityForResult(intent, 4321);
+                }
             }
         });
 
@@ -163,6 +194,125 @@ public class SettingsFragment extends Fragment {
                 changeDarkModeStatus();
             }
         });
+    }
+
+    private boolean checkPerms() {
+        int read = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if(read != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 200) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("text/comma-separated-values");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+                startActivityForResult(intent, 4321);
+            } else {
+                Toast.makeText(getActivity(), getString(R.string.error_export_permission), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void importDataFromCSV(Uri uri) {
+
+        StringBuilder csvData = new StringBuilder();
+
+        try (InputStream inputStream = requireActivity().getContentResolver().openInputStream(uri);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                csvData.append(line).append("\n");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String[] csvLines = csvData.toString().split("\n");
+            dbHelper.importData(csvLines);
+            Toast.makeText(getContext(), getString(R.string.text_import_correct), Toast.LENGTH_SHORT).show();
+        } catch (Exception ex) {
+            Toast.makeText(getContext(), getString(R.string.error_import), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void authenticateUser() {
+        KeyguardManager keyguardManager = requireContext().getSystemService(KeyguardManager.class);
+        if (keyguardManager != null && keyguardManager.isKeyguardSecure()) {
+            BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle(getString(R.string.text_confirm_identity))
+                    .setSubtitle(getString(R.string.text_private_links))
+                    .setNegativeButtonText(getString(R.string.text_cancel))
+                    .build();
+
+            BiometricPrompt biometricPrompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(requireContext()),
+                    new BiometricPrompt.AuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                            super.onAuthenticationError(errorCode, errString);
+                            if (keyguardManager.isKeyguardSecure() && errorCode != 10 && errorCode != 13) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                    Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(null, null);
+                                    if (intent != null) {
+                                        startActivityForResult(intent, 1234);
+                                    }
+                                } else {
+                                    Toast.makeText(requireContext(), getString(R.string.text_wrong_version), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                            super.onAuthenticationSucceeded(result);
+                            openPrivateLinks();
+                        }
+
+                        @Override
+                        public void onAuthenticationFailed() {
+                            super.onAuthenticationFailed();
+                        }
+                    });
+
+            biometricPrompt.authenticate(promptInfo);
+        } else {
+            openPrivateLinks();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1234) {
+            if (resultCode == getActivity().RESULT_OK) {
+                openPrivateLinks();
+            }
+        }
+
+        if (requestCode == 4321 && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                Uri uri = data.getData();
+                importDataFromCSV(uri);
+            }
+        }
+    }
+
+    private void openPrivateLinks() {
+        Intent intent = new Intent(this.getContext(), PrivateLinksActivity.class);
+        this.getContext().startActivity(intent);
     }
 
     private void showLanguageDialog() {
@@ -271,23 +421,38 @@ public class SettingsFragment extends Fragment {
 
     private void exportDataToCSV() {
         String csvData = dbHelper.exportToCSV();
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            return;
-        }
+        if (isExternalStorageAvailable() && !isExternalStorageReadOnly()) {
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Constants.CSV_NAME);
 
-        File file = new File(Environment.getExternalStorageDirectory(), "linkvault_data.csv");
-        FileOutputStream outputStream = null;
-        try {
-            file.createNewFile();
-            outputStream = new FileOutputStream(file, true);
-
-            outputStream.write(csvData.getBytes());
-            outputStream.flush();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(csvData.getBytes());
+                fos.close();
+                Toast.makeText(this.getContext(), getString(R.string.text_export_correct)
+                        + " " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Toast.makeText(this.getContext(), getString(R.string.error_export), Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(this.getContext(), getString(R.string.error_export_permission), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private static boolean isExternalStorageReadOnly() {
+        String extStorageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isExternalStorageAvailable() {
+        String extStorageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(extStorageState)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

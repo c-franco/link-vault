@@ -29,6 +29,9 @@
         <activity android:name=".ui.categories.CategoryLinksActivity">
         </activity>
 
+        <activity android:name=".ui.links.PrivateLinksActivity">
+        </activity>
+
         <activity android:name=".Singleton">
         </activity>
 

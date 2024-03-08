@@ -85,7 +85,7 @@ public class FavoritesFragment extends Fragment {
 
     private void loadRecyclerViewData() {
         favoritesList = dbHelper.getFavoriteLinks();
-        linksAdapter = new LinksAdapter(favoritesList, (MainActivity) getActivity(), null);
+        linksAdapter = new LinksAdapter(favoritesList, (MainActivity) getActivity(), null, null);
         recyclerView_favorites.setAdapter(linksAdapter);
         tv_empty_favorites_list.setVisibility(favoritesList.isEmpty() ? View.VISIBLE : View.GONE);
     }

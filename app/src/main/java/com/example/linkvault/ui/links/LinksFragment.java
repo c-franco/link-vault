@@ -84,8 +84,8 @@ public class LinksFragment extends Fragment {
     // region Other methods
 
     private void loadRecyclerViewData() {
-        linkList = dbHelper.getAllLinks();
-        linksAdapter = new LinksAdapter(linkList, (MainActivity) getActivity(), null);
+        linkList = dbHelper.getAllLinks(false, false);
+        linksAdapter = new LinksAdapter(linkList, (MainActivity) getActivity(), null, null);
         recyclerView_links.setAdapter(linksAdapter);
         tv_empty_link_list.setVisibility(linkList.isEmpty() ? View.VISIBLE : View.GONE);
     }

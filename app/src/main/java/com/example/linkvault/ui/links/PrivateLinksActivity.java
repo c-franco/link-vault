@@ -1,10 +1,8 @@
-package com.example.linkvault.ui.categories;
+package com.example.linkvault.ui.links;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -14,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,52 +22,33 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkvault.LinkVaultBD;
-import com.example.linkvault.MainActivity;
 import com.example.linkvault.R;
-import com.example.linkvault.Singleton;
 import com.example.linkvault.models.Category;
 import com.example.linkvault.models.Link;
-import com.example.linkvault.ui.links.LinksAdapter;
+import com.example.linkvault.ui.categories.CategoryLinksActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CategoryLinksActivity extends AppCompatActivity {
+public class PrivateLinksActivity extends AppCompatActivity {
 
-    private MainActivity mainActivity;
     private LinkVaultBD dbHelper;
     private LinksAdapter linksAdapter;
     private List<Link> linkList;
-    public int categoryId;
-    public String categoryTitle;
     private String selectedCategory;
-    private String selectedCategory_move;
-    List<Link> selectedLinks;
 
     private AutoCompleteTextView auto_complete_textView;
-    private AutoCompleteTextView auto_complete_textView_move;
-
-    private TextView tv_empty_link_list_category;
-    private static RecyclerView recyclerView_links;
+    private TextView tv_empty_private_link_list;
+    private static RecyclerView recyclerView_private_links;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category_links);
+        setContentView(R.layout.activity_private_links);
 
-        mainActivity = Singleton.getInstance().getMainActivityInstance();
-        if (mainActivity != null) {
-            mainActivity.getMainActivity();
-        }
-
-        Intent intent = getIntent();
-        categoryId = intent.getIntExtra("categoryId", 1);
-        categoryTitle = intent.getStringExtra("categoryTitle");
-
-        Toolbar toolbar = findViewById(R.id.nav_toolbar);
-        toolbar.setTitle(categoryTitle);
+        Toolbar toolbar = findViewById(R.id.nav_toolbar_private);
+        toolbar.setTitle(getString(R.string.setting_private_links));
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
@@ -82,42 +60,38 @@ public class CategoryLinksActivity extends AppCompatActivity {
         dbHelper = new LinkVaultBD(this);
 
         // RecyclerView setup
-        recyclerView_links = findViewById(R.id.recyclerView_links_in_category);
-        recyclerView_links.setLayoutManager(new LinearLayoutManager(this));
-        tv_empty_link_list_category = findViewById(R.id.tv_empty_link_list_category);
+        recyclerView_private_links = findViewById(R.id.recyclerView_private_links);
+        recyclerView_private_links.setLayoutManager(new LinearLayoutManager(this));
+        tv_empty_private_link_list = findViewById(R.id.tv_empty_private_link_list);
         loadRecyclerViewData();
-
-        ImageButton btn_move_links = findViewById(R.id.btn_move_links);
-        ImageButton btn_share_links = findViewById(R.id.btn_share_links);
-
-        btn_move_links.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(checkIfLinksSelected()) {
-                    moveLinksDialog();
-                } else {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_no_links_selected), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        btn_share_links.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(checkIfLinksSelected()) {
-                    shareLinks();
-                } else {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_no_links_selected), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    public void loadRecyclerViewData() {
+        linkList = dbHelper.getAllLinks(true, false);
+        linksAdapter = new LinksAdapter(linkList, null, null, PrivateLinksActivity.this);
+        recyclerView_private_links.setAdapter(linksAdapter);
+        tv_empty_private_link_list.setVisibility(linkList.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void loadCategories() {
+
+        List<String> categoryTitles = dbHelper.getAllCategoryTitles();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(PrivateLinksActivity.this, R.layout.list_item, categoryTitles);
+
+        auto_complete_textView.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
+
+        auto_complete_textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = (String) parent.getItemAtPosition(position);
+            }
+        });
     }
 
     public void newLinkDialog(Link link, boolean edit) {
@@ -170,13 +144,13 @@ public class CategoryLinksActivity extends AppCompatActivity {
                 String url = urlText.getText().toString();
 
                 if(!validString(title)) {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_title_link_empty), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_title_link_empty), Toast.LENGTH_SHORT).show();
                 }
                 else if(!validString(url)) {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_url_empty), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_url_empty), Toast.LENGTH_SHORT).show();
                 }
                 else if(!validUrl(url)) {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
                 }
                 else {
                     try {
@@ -197,7 +171,7 @@ public class CategoryLinksActivity extends AppCompatActivity {
                             dbHelper.addNewLink(link);
 
                     } catch (Exception ex) {
-                        Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_db_link), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_db_link), Toast.LENGTH_SHORT).show();
                     }
 
                     dialog.dismiss();
@@ -257,7 +231,7 @@ public class CategoryLinksActivity extends AppCompatActivity {
                 String title = titleText.getText().toString();
 
                 if(!validString(title)) {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_title_category_empty), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_title_category_empty), Toast.LENGTH_SHORT).show();
                 }
                 else {
                     try {
@@ -273,7 +247,7 @@ public class CategoryLinksActivity extends AppCompatActivity {
                         }
 
                     } catch (Exception ex) {
-                        Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_db_category), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_db_category), Toast.LENGTH_SHORT).show();
                     }
                     dialog.dismiss();
                     loadRecyclerViewData();
@@ -301,127 +275,6 @@ public class CategoryLinksActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void moveLinksDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.move_item);
-
-        Button cancelButton = dialog.findViewById(R.id.bt_cancel_move);
-        Button moveButton = dialog.findViewById(R.id.bt_confirm_move);
-        auto_complete_textView_move = dialog.findViewById(R.id.auto_complete_textView_move);
-
-        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
-        params.gravity = Gravity.CENTER;
-        params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
-        auto_complete_textView_move.setText(getString(R.string.default_category0));
-        loadCategories_move();
-
-        moveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                moveLinksToCategory();
-
-                loadRecyclerViewData();
-                dialog.dismiss();
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.show();
-    }
-
-    private void moveLinksToCategory() {
-        int idCategory = dbHelper.getCategoryId(auto_complete_textView_move.getText().toString());
-
-        for (Link link : selectedLinks) {
-            dbHelper.moveLinkToCategory(link, idCategory);
-        }
-    }
-
-    private boolean checkIfLinksSelected() {
-        LinksAdapter adapter = (LinksAdapter) recyclerView_links.getAdapter();
-        selectedLinks = new ArrayList<>();
-
-        if(adapter != null && adapter.localDataSet.size() > 0) {
-            for (Link link : adapter.localDataSet) {
-                if (link.isSelected) {
-                    selectedLinks.add(link);
-                }
-            }
-        }
-
-        return selectedLinks.size() > 0;
-    }
-
-    public void loadRecyclerViewData() {
-        linkList = dbHelper.getLinksByCategoryId(categoryId, false, false);
-        linksAdapter = new LinksAdapter(linkList, null, CategoryLinksActivity.this, null);
-        recyclerView_links.setAdapter(linksAdapter);
-        tv_empty_link_list_category.setVisibility(linkList.isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    private void loadCategories() {
-
-        List<String> categoryTitles = dbHelper.getAllCategoryTitles();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(CategoryLinksActivity.this, R.layout.list_item, categoryTitles);
-
-        auto_complete_textView.setAdapter(arrayAdapter);
-        arrayAdapter.notifyDataSetChanged();
-
-        auto_complete_textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedCategory = (String) parent.getItemAtPosition(position);
-            }
-        });
-    }
-
-    private void loadCategories_move() {
-
-        List<String> categoryTitles = dbHelper.getAllCategoryTitles();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(CategoryLinksActivity.this, R.layout.list_item, categoryTitles);
-
-        auto_complete_textView_move.setAdapter(arrayAdapter);
-        arrayAdapter.notifyDataSetChanged();
-
-        auto_complete_textView_move.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedCategory_move = (String) parent.getItemAtPosition(position);
-            }
-        });
-    }
-
-    private void shareLinks() {
-
-        StringBuilder urlString = new StringBuilder();
-
-        for (Link link : selectedLinks) {
-            urlString.append(link.url).append("\n");
-        }
-
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, urlString.toString());
-
-        Intent clipboardIntent = new Intent(this, MainActivity.class);
-        clipboardIntent.setData(Uri.parse(urlString.toString()));
-
-        Intent chooserIntent = Intent.createChooser(shareIntent, getString(R.string.item_copy));
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { clipboardIntent });
-
-        startActivity(chooserIntent);
-    }
-
     public boolean validUrl(String url) {
 
         Pattern patron = Pattern.compile("^(https?://(w{3}\\.)?)?\\w+\\.\\w+(\\.[a-zA-Z]+)*(:\\d{1,5})?(/\\w*)*(\\??(.+=.*)?(&.+=.*)?)?$");
@@ -433,12 +286,8 @@ public class CategoryLinksActivity extends AppCompatActivity {
     public boolean validString(String string) {
 
         Pattern patron = Pattern.compile("^(?!\\s*$).+");
-
         Matcher mat = patron.matcher(string);
 
         return mat.matches();
     }
 }
-
-
-

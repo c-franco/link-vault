@@ -16,8 +16,11 @@ import com.example.linkvault.models.Link;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class LinkVaultBD extends SQLiteOpenHelper {
 
@@ -105,15 +108,27 @@ public class LinkVaultBD extends SQLiteOpenHelper {
     // region Link querys
 
     @SuppressLint("Range")
-    public List<Link> getAllLinks() {
+    public List<Link> getAllLinks(boolean privateLinks, boolean export) {
         List<Link> linkList = new ArrayList<>();
 
         SharedPreferences preferences = context.getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
         int sortOption = preferences.getInt(Constants.KEY_SORT_LINK, 0);
 
+        String selection;
+        String[] selectionArgs;
+
+        if(export) {
+            selection = null;
+            selectionArgs = null;
+        }
+        else {
+            selection = IS_PRIVATE_COL + " = ?";
+            selectionArgs = privateLinks ? new String[]{"1"} : new String[]{"0"};
+        }
+
         try (SQLiteDatabase db = this.getReadableDatabase();
              Cursor cursor = db.query(LINKS_TABLE, new String[]{ID_COL, URL_COL, TITLE_COL, ID_CATEGORY_COL, IS_FAVORITE_COL, IS_PRIVATE_COL, TIMESTAMP_COL},
-                     null, null, null, null, getSortClause(sortOption))) {
+                     selection, selectionArgs, null, null, getSortClause(sortOption))) {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     Link link = new Link();
@@ -145,7 +160,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
         try (SQLiteDatabase db = this.getReadableDatabase();
              Cursor cursor = db.query(LINKS_TABLE, new String[]{ID_COL, URL_COL, TITLE_COL, ID_CATEGORY_COL, IS_FAVORITE_COL, IS_PRIVATE_COL},
-                     IS_FAVORITE_COL + "=?", new String[]{"1"}, null, null, getSortClause(sortOption))) {
+                     IS_FAVORITE_COL + "=? AND " + IS_PRIVATE_COL + " = ?", new String[]{"1", "0"}, null, null, getSortClause(sortOption))) {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     Link link = new Link();
@@ -188,15 +203,28 @@ public class LinkVaultBD extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public List<Link> getLinksByCategoryId(int categoryId) {
+    public List<Link> getLinksByCategoryId(int categoryId, boolean privateLinks, boolean delete) {
         List<Link> links = new ArrayList<>();
 
         SharedPreferences preferences = context.getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
         int sortOption = preferences.getInt(Constants.KEY_SORT_LINK, 0);
 
+        String selection;
+        String[] selectionArgs;
+
+        if(delete) {
+            selection = ID_CATEGORY_COL + "=?";
+            selectionArgs = new String[]{String.valueOf(categoryId)};
+        }
+        else {
+            selection = ID_CATEGORY_COL + "=? AND " + IS_PRIVATE_COL + "=?";
+            selectionArgs = privateLinks ? new String[]{String.valueOf(categoryId), "1"}
+                    : new String[]{String.valueOf(categoryId), "0"};
+        }
+
         try (SQLiteDatabase db = this.getReadableDatabase();
              Cursor cursor = db.query(LINKS_TABLE, new String[]{ID_COL, URL_COL, TITLE_COL, ID_CATEGORY_COL, IS_FAVORITE_COL, IS_PRIVATE_COL},
-                     ID_CATEGORY_COL + "=?", new String[]{String.valueOf(categoryId)}, null, null, getSortClause(sortOption))) {
+                     selection, selectionArgs, null, null, getSortClause(sortOption))) {
 
             if (cursor != null && cursor.moveToFirst()) {
                 do {
@@ -368,7 +396,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
     public void deleteCategoryById(int categoryId) {
 
-        List<Link> linksToDelete = getLinksByCategoryId(categoryId);
+        List<Link> linksToDelete = getLinksByCategoryId(categoryId, false, true);
 
         for (Link link : linksToDelete) {
             deleteLinkById(link.id);
@@ -406,16 +434,16 @@ public class LinkVaultBD extends SQLiteOpenHelper {
     public String exportToCSV() {
         StringBuilder csvData = new StringBuilder();
 
-        List<Link> links = getAllLinks();
-        csvData.append("ID,URL,TITLE,ID_CATEGORY,IS_FAVORITE,IS_PRIVATE,TIMESTAMP\n");
-        for (Link link : links) {
-            csvData.append(link.toCSV()).append("\n");
-        }
-
         List<Category> categories = getAllCategories();
-        csvData.append("\nID,TITLE,TIMESTAMP\n");
+        csvData.append("ID,TITLE,TIMESTAMP\n");
         for (Category category : categories) {
             csvData.append(category.toCSV()).append("\n");
+        }
+
+        List<Link> links = getAllLinks(false, true);
+        csvData.append("\nID,URL,TITLE,ID_CATEGORY,IS_FAVORITE,IS_PRIVATE,TIMESTAMP\n");
+        for (Link link : links) {
+            csvData.append(link.toCSV()).append("\n");
         }
 
         return csvData.toString();
@@ -426,10 +454,8 @@ public class LinkVaultBD extends SQLiteOpenHelper {
     // region Other methods
 
     public void deleteAllData() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + LINKS_TABLE);
-        db.execSQL("DELETE FROM " + CATEGORIES_TABLE);
-        db.close();
+        deleteAllLinks();
+        deleteAllCategories();
     }
 
     private String getCurrentTimestamp() {
@@ -447,6 +473,63 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         }
         else {
             return TITLE_COL + " ASC";
+        }
+    }
+
+    public void deleteAllLinks() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(LINKS_TABLE, null, null);
+        db.close();
+    }
+
+    public void deleteAllCategories() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + CATEGORIES_TABLE + " WHERE " + ID_COL + " <> 1");
+        db.close();
+    }
+
+    public void importData(String[] csvLines) {
+        if (csvLines.length > 1) {
+
+            Dictionary categoryIds = new Hashtable();
+            boolean categories = true;
+            for (int i = 1; i < csvLines.length; i++) {
+
+                if(Objects.equals(csvLines[i], "") && categories) {
+                    categories = false;
+                    i += 2;
+                }
+
+                String[] values = csvLines[i].split(",");
+
+                if(categories) {
+
+                    Category category = new Category();
+                    category.title = values[1];
+                    category.timestamp = values[2];
+
+                    if(!categoryExist(category.title)){
+                        addNewCategory(category);
+                    }
+
+                    int categoryId = getCategoryId(category.title);
+                    categoryIds.put(values[0], categoryId);
+                }
+                else {
+
+                    int categoryId = (int) categoryIds.get(values[3]);
+
+                    Link link = new Link();
+                    link.url = values[1];
+                    link.title = values[2];
+                    link.idCategory = categoryId;
+                    link.isFavorite = Objects.equals(values[4], "1");
+                    link.isPrivate = Objects.equals(values[5], "1");
+                    link.timestamp = values[6];
+
+                    addNewLink(link);
+                }
+            }
         }
     }
 

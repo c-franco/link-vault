@@ -46,6 +46,11 @@
     <string name="text_sort_oldest">By oldest</string>
     <string name="text_no_links_in_category">There are no links to share in this category</string>
     <string name="text_move_items_to_category">Choose a category to move the selected links</string>
+    <string name="text_private_links">Access to private links</string>
+    <string name="text_confirm_identity">Confirm your identity</string>
+    <string name="text_wrong_version">Versions prior to Android 9 are not supported</string>
+    <string name="text_export_correct">File stored in</string>
+    <string name="text_import_correct">Import successfully completed</string>
 
     <string name="error_title_link_empty">The link title is empty</string>
     <string name="error_title_category_empty">The category title is empty</string>
@@ -56,6 +61,9 @@
     <string name="error_db_category">An error occurred while creating the category</string>
     <string name="error_db_repeated_category">A category with that name already exists</string>
     <string name="error_no_links_selected">No link selected</string>
+    <string name="error_export">An error occurred while exporting data</string>
+    <string name="error_import">An error occurred while importing data</string>
+    <string name="error_export_permission">Permission required on external storage</string>
 
     <string name="default_category0">No category</string>
     <string name="default_category1">School</string>
@@ -67,6 +75,7 @@
 
     <string name="setting_language">Language</string>
     <string name="setting_dark_mode">Dark mode</string>
+    <string name="setting_private_links">Private links</string>
     <string name="setting_export_links">Export links</string>
     <string name="setting_import_links">Import links</string>
     <string name="setting_delete_data">Delete all data</string>

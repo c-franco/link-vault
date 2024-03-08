@@ -12,7 +12,7 @@
     <color name="add_button">#FFFFFFFF</color>
     <color name="white_dialog">#FFFFFFFF</color>
     <color name="settings">#FFFFFFFF</color>
-    <color name="floatingbutton">#337ead</color>
+    <color name="floating_button">#337ead</color>
 
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

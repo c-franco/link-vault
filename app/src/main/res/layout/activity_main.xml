@@ -74,7 +74,7 @@
             android:src="@drawable/ic_add_24dp"
             app:layout_anchor="@id/bottom_bar_app"
             app:maxImageSize="40dp"
-            app:tint="@color/floatingbutton"
+            app:tint="@color/floating_button"
             app:borderWidth="0dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

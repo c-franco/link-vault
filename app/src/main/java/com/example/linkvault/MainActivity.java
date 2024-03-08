@@ -1,9 +1,11 @@
 package com.example.linkvault;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -31,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -263,6 +266,9 @@ public class MainActivity extends AppCompatActivity {
             auto_complete_textView.setText(selectedCategory);
             isFavorite.setChecked(link.isFavorite);
             isPrivate.setChecked(link.isPrivate);
+        }
+        else {
+            selectedCategory = getString(R.string.default_category0);
         }
 
         loadCategories();

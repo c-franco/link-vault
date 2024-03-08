@@ -66,4 +66,13 @@
     <string name="text_select_language">Selecciona un idioma</string>
     <string name="language_spanish">Español</string>
     <string name="language_english">Inglés</string>
+    <string name="setting_private_links">Enlaces privados</string>
+    <string name="text_private_links">Accede a los enlaces privados</string>
+    <string name="text_confirm_identity">Confirma tu identidad</string>
+    <string name="text_wrong_version">Versiones anteriores a Android 9 no son compatibles</string>
+    <string name="text_export_correct">Archivo guardado en</string>
+    <string name="error_export">Ha ocurrido un error al exportar los datos</string>
+    <string name="error_export_permission">Se requiere permiso en el almacenamiento externo</string>
+    <string name="text_import_correct">Importación terminada correctamente</string>
+    <string name="error_import">Ha ocurrido un error al importar los datos</string>
 </resources>
