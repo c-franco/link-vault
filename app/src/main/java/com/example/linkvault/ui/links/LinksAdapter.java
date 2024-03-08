@@ -159,7 +159,7 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
 
                     link.setSelected(!link.isSelected());
                     viewHolder.linearLayout.setBackgroundColor(link.isSelected() ?
-                            categoryLinksActivity.getColor(R.color.select_color) : categoryLinksActivity.getColor(R.color.white));
+                            categoryLinksActivity.getColor(R.color.select_color) : categoryLinksActivity.getColor(R.color.settings));
 
                     return true;
                 }
