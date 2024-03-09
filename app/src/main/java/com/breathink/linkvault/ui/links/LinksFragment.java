@@ -25,14 +25,21 @@ import java.util.List;
 
 public class LinksFragment extends Fragment {
 
+    // region Variables
+
     private FragmentLinksBinding binding;
     private LinkVaultBD dbHelper;
     private LinksAdapter linksAdapter;
     private List<Link> linkList;
 
-    private TextView tv_empty_link_list;
+    // endregion
 
+    // region View elements
+
+    private TextView tv_empty_link_list;
     private static RecyclerView recyclerView_links;
+
+    // endregion
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -41,14 +48,7 @@ public class LinksFragment extends Fragment {
         View root = binding.getRoot();
         setHasOptionsMenu(true);
 
-        // Database setup
-        dbHelper = new LinkVaultBD(getActivity());
-
-        // RecyclerView setup
-        recyclerView_links = binding.getRoot().findViewById(R.id.recyclerView_links);
-        recyclerView_links.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
-        tv_empty_link_list = binding.getRoot().findViewById(R.id.tv_empty_link_list);
-        loadRecyclerViewData();
+        startSetup();
 
         return root;
     }
@@ -82,6 +82,17 @@ public class LinksFragment extends Fragment {
     // endregion
 
     // region Other methods
+
+    private void startSetup() {
+        // Database setup
+        dbHelper = new LinkVaultBD(getActivity());
+
+        // RecyclerView setup
+        recyclerView_links = binding.getRoot().findViewById(R.id.recyclerView_links);
+        recyclerView_links.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
+        tv_empty_link_list = binding.getRoot().findViewById(R.id.tv_empty_link_list);
+        loadRecyclerViewData();
+    }
 
     private void loadRecyclerViewData() {
         linkList = dbHelper.getAllLinks(false, false);

@@ -56,9 +56,15 @@ import java.util.Locale;
 
 public class SettingsFragment extends Fragment {
 
+    // region Variables
+
     private FragmentSettingsBinding binding;
     private View root;
     private LinkVaultBD dbHelper;
+
+    // endregion
+
+    // region View elements
 
     private LinearLayout layout_language;
     private LinearLayout layout_private_links;
@@ -68,6 +74,8 @@ public class SettingsFragment extends Fragment {
     private Switch switch_darkmode;
     private TextView tv_version_number;
     private TextView tv_current_language_text;
+
+    // endregion
 
     @SuppressLint("ResourceType")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -90,44 +98,7 @@ public class SettingsFragment extends Fragment {
         return root;
     }
 
-    private void changeDarkModeStatus() {
-        SharedPreferences preferences = this.getActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(Constants.KEY_DARK_MODE, switch_darkmode.isChecked());
-        editor.apply();
-
-        if(switch_darkmode.isChecked()) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
-    }
-
-    private void loadDarkModeStatus() {
-        SharedPreferences preferences = this.getActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
-        boolean darkmode = preferences.getBoolean(Constants.KEY_DARK_MODE, false);
-        switch_darkmode.setChecked(darkmode);
-    }
-
-    private void loadLanguage() {
-        SharedPreferences preferences = this.getContext().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
-        String languageCode = preferences.getString(Constants.KEY_LANGUAGE, Locale.getDefault().getLanguage());
-
-        String language = "";
-
-        if(languageCode.equals(Constants.ES_CODE)) {
-            language = getString(R.string.language_spanish);
-        }
-        else if(languageCode.equals(Constants.EN_CODE)) {
-            language = getString(R.string.language_english);
-        }
-
-        tv_current_language_text.setText(language);
-    }
-
-    private void loadVersion() {
-        tv_version_number.setText(Constants.VERSION);
-    }
+    // region Setup
 
     private void getComponents() {
         layout_language = root.findViewById(R.id.layout_language);
@@ -190,15 +161,36 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    private boolean checkPerms() {
-        int read = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+    // endregion
 
-        if(read != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
-            return false;
-        } else {
-            return true;
+    // region Events
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        Activity activity = getActivity();
+        if (activity != null) {
+            Toolbar toolbar = activity.findViewById(R.id.nav_toolbar);
+            toolbar.setTitle(getString(R.string.title_settings));
         }
+
+        MenuItem item_search = menu.findItem(R.id.item_search);
+        MenuItem item_sort = menu.findItem(R.id.item_sort);
+
+        if(item_search != null)
+            item_search.setVisible(false);
+        if(item_sort != null)
+            item_sort.setVisible(false);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override
@@ -217,6 +209,57 @@ public class SettingsFragment extends Fragment {
             }
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1234) {
+            if (resultCode == getActivity().RESULT_OK) {
+                openPrivateLinks();
+            }
+        }
+
+        if (requestCode == 4321 && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                Uri uri = data.getData();
+                importDataFromCSV(uri);
+            }
+        }
+    }
+
+    // endregion
+
+    // region Load settings
+
+    private void loadLanguage() {
+        SharedPreferences preferences = this.getContext().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        String languageCode = preferences.getString(Constants.KEY_LANGUAGE, Locale.getDefault().getLanguage());
+
+        String language = "";
+
+        if(languageCode.equals(Constants.ES_CODE)) {
+            language = getString(R.string.language_spanish);
+        }
+        else if(languageCode.equals(Constants.EN_CODE)) {
+            language = getString(R.string.language_english);
+        }
+
+        tv_current_language_text.setText(language);
+    }
+
+    private void loadDarkModeStatus() {
+        SharedPreferences preferences = this.getActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        boolean darkmode = preferences.getBoolean(Constants.KEY_DARK_MODE, false);
+        switch_darkmode.setChecked(darkmode);
+    }
+
+    private void loadVersion() {
+        tv_version_number.setText(Constants.VERSION);
+    }
+
+    // endregion
+
+    // region Import / Export
 
     private void importDataFromCSV(Uri uri) {
 
@@ -241,6 +284,57 @@ public class SettingsFragment extends Fragment {
         } catch (Exception ex) {
             Toast.makeText(getContext(), getString(R.string.error_import), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void exportDataToCSV() {
+        String csvData = dbHelper.exportToCSV();
+        if (isExternalStorageAvailable() && !isExternalStorageReadOnly()) {
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Constants.CSV_NAME);
+
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(csvData.getBytes());
+                fos.close();
+                Toast.makeText(this.getContext(), getString(R.string.text_export_correct)
+                        + " " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                Toast.makeText(this.getContext(), getString(R.string.error_export), Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(this.getContext(), getString(R.string.error_export_permission), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // endregion
+
+    // region Permissions
+
+    private boolean checkPerms() {
+        int read = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if(read != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private static boolean isExternalStorageReadOnly() {
+        String extStorageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isExternalStorageAvailable() {
+        String extStorageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(extStorageState)) {
+            return true;
+        }
+        return false;
     }
 
     private void authenticateUser() {
@@ -287,20 +381,20 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1234) {
-            if (resultCode == getActivity().RESULT_OK) {
-                openPrivateLinks();
-            }
-        }
+    // endregion
 
-        if (requestCode == 4321 && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                Uri uri = data.getData();
-                importDataFromCSV(uri);
-            }
+    // region Other methods
+
+    private void changeDarkModeStatus() {
+        SharedPreferences preferences = this.getActivity().getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(Constants.KEY_DARK_MODE, switch_darkmode.isChecked());
+        editor.apply();
+
+        if(switch_darkmode.isChecked()) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
 
@@ -413,67 +507,6 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
-    private void exportDataToCSV() {
-        String csvData = dbHelper.exportToCSV();
-        if (isExternalStorageAvailable() && !isExternalStorageReadOnly()) {
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Constants.CSV_NAME);
+    // endregion
 
-            try {
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(csvData.getBytes());
-                fos.close();
-                Toast.makeText(this.getContext(), getString(R.string.text_export_correct)
-                        + " " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                Toast.makeText(this.getContext(), getString(R.string.error_export), Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-        } else {
-            Toast.makeText(this.getContext(), getString(R.string.error_export_permission), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private static boolean isExternalStorageReadOnly() {
-        String extStorageState = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState)) {
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean isExternalStorageAvailable() {
-        String extStorageState = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(extStorageState)) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        Activity activity = getActivity();
-        if (activity != null) {
-            Toolbar toolbar = activity.findViewById(R.id.nav_toolbar);
-            toolbar.setTitle(getString(R.string.title_settings));
-        }
-
-        MenuItem item_search = menu.findItem(R.id.item_search);
-        MenuItem item_sort = menu.findItem(R.id.item_sort);
-
-        if(item_search != null)
-            item_search.setVisible(false);
-        if(item_sort != null)
-            item_sort.setVisible(false);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
 }

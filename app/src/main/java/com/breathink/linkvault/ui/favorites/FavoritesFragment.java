@@ -26,13 +26,21 @@ import java.util.List;
 
 public class FavoritesFragment extends Fragment {
 
+    // region Variables
+
     private FragmentFavoritesBinding binding;
     private LinkVaultBD dbHelper;
     private LinksAdapter linksAdapter;
     private List<Link> favoritesList;
 
+    // endregion
+
+    // region View elements
+
     private TextView tv_empty_favorites_list;
     private static RecyclerView recyclerView_favorites;
+
+    // endregion
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -41,14 +49,7 @@ public class FavoritesFragment extends Fragment {
         View root = binding.getRoot();
         setHasOptionsMenu(true);
 
-        // Database setup
-        dbHelper = new LinkVaultBD(getActivity());
-
-        // RecyclerView setup
-        recyclerView_favorites = binding.getRoot().findViewById(R.id.recyclerView_favorites);
-        recyclerView_favorites.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
-        tv_empty_favorites_list = binding.getRoot().findViewById(R.id.tv_empty_favorites_list);
-        loadRecyclerViewData();
+        startSetup();
 
         return root;
     }
@@ -82,6 +83,17 @@ public class FavoritesFragment extends Fragment {
     // endregion
 
     // region Other methods
+
+    private void startSetup() {
+        // Database setup
+        dbHelper = new LinkVaultBD(getActivity());
+
+        // RecyclerView setup
+        recyclerView_favorites = binding.getRoot().findViewById(R.id.recyclerView_favorites);
+        recyclerView_favorites.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
+        tv_empty_favorites_list = binding.getRoot().findViewById(R.id.tv_empty_favorites_list);
+        loadRecyclerViewData();
+    }
 
     private void loadRecyclerViewData() {
         favoritesList = dbHelper.getFavoriteLinks();

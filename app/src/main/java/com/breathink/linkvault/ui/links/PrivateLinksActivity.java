@@ -23,75 +23,49 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.breathink.linkvault.LinkVaultBD;
 import com.breathink.linkvault.R;
+import com.breathink.linkvault.Utils;
 import com.breathink.linkvault.models.Category;
 import com.breathink.linkvault.models.Link;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PrivateLinksActivity extends AppCompatActivity {
+
+    // region Variables
 
     private LinkVaultBD dbHelper;
     private LinksAdapter linksAdapter;
     private List<Link> linkList;
     private String selectedCategory;
 
+    // endregion
+
+    // region View elements
+
     private AutoCompleteTextView auto_complete_textView;
     private TextView tv_empty_private_link_list;
     private static RecyclerView recyclerView_private_links;
+
+    // endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_private_links);
 
-        Toolbar toolbar = findViewById(R.id.nav_toolbar_private);
-        toolbar.setTitle(getString(R.string.setting_private_links));
-        setSupportActionBar(toolbar);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        // Database setup
-        dbHelper = new LinkVaultBD(this);
-
-        // RecyclerView setup
-        recyclerView_private_links = findViewById(R.id.recyclerView_private_links);
-        recyclerView_private_links.setLayoutManager(new LinearLayoutManager(this));
-        tv_empty_private_link_list = findViewById(R.id.tv_empty_private_link_list);
-        loadRecyclerViewData();
+        startSetup();
     }
+
+    // region Events
 
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
 
-    public void loadRecyclerViewData() {
-        linkList = dbHelper.getAllLinks(true, false);
-        linksAdapter = new LinksAdapter(linkList, null, null, PrivateLinksActivity.this);
-        recyclerView_private_links.setAdapter(linksAdapter);
-        tv_empty_private_link_list.setVisibility(linkList.isEmpty() ? View.VISIBLE : View.GONE);
-    }
+    // endregion
 
-    private void loadCategories() {
-
-        List<String> categoryTitles = dbHelper.getAllCategoryTitles();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(PrivateLinksActivity.this, R.layout.list_item, categoryTitles);
-
-        auto_complete_textView.setAdapter(arrayAdapter);
-        arrayAdapter.notifyDataSetChanged();
-
-        auto_complete_textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedCategory = (String) parent.getItemAtPosition(position);
-            }
-        });
-    }
+    // region Dialogs
 
     public void newLinkDialog(Link link, boolean edit) {
 
@@ -142,13 +116,13 @@ public class PrivateLinksActivity extends AppCompatActivity {
                 String title = titleText.getText().toString();
                 String url = urlText.getText().toString();
 
-                if(!validString(title)) {
+                if(!Utils.validString(title)) {
                     Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_title_link_empty), Toast.LENGTH_SHORT).show();
                 }
-                else if(!validString(url)) {
+                else if(!Utils.validString(url)) {
                     Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_url_empty), Toast.LENGTH_SHORT).show();
                 }
-                else if(!validUrl(url)) {
+                else if(!Utils.validUrl(url)) {
                     Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -229,7 +203,7 @@ public class PrivateLinksActivity extends AppCompatActivity {
 
                 String title = titleText.getText().toString();
 
-                if(!validString(title)) {
+                if(!Utils.validString(title)) {
                     Toast.makeText(PrivateLinksActivity.this, getString(R.string.error_title_category_empty), Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -274,19 +248,53 @@ public class PrivateLinksActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public boolean validUrl(String url) {
+    // endregion
 
-        Pattern patron = Pattern.compile("^(https?://(w{3}\\.)?)?\\w+\\.\\w+(\\.[a-zA-Z]+)*(:\\d{1,5})?(/\\w*)*(\\??(.+=.*)?(&.+=.*)?)?$");
-        Matcher mat = patron.matcher(url);
+    // region Other methods
 
-        return mat.matches();
+    private void startSetup() {
+        Toolbar toolbar = findViewById(R.id.nav_toolbar_private);
+        toolbar.setTitle(getString(R.string.setting_private_links));
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // Database setup
+        dbHelper = new LinkVaultBD(this);
+
+        // RecyclerView setup
+        recyclerView_private_links = findViewById(R.id.recyclerView_private_links);
+        recyclerView_private_links.setLayoutManager(new LinearLayoutManager(this));
+        tv_empty_private_link_list = findViewById(R.id.tv_empty_private_link_list);
+        loadRecyclerViewData();
     }
 
-    public boolean validString(String string) {
-
-        Pattern patron = Pattern.compile("^(?!\\s*$).+");
-        Matcher mat = patron.matcher(string);
-
-        return mat.matches();
+    public void loadRecyclerViewData() {
+        linkList = dbHelper.getAllLinks(true, false);
+        linksAdapter = new LinksAdapter(linkList, null, null, PrivateLinksActivity.this);
+        recyclerView_private_links.setAdapter(linksAdapter);
+        tv_empty_private_link_list.setVisibility(linkList.isEmpty() ? View.VISIBLE : View.GONE);
     }
+
+    private void loadCategories() {
+
+        List<String> categoryTitles = dbHelper.getAllCategoryTitles();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(PrivateLinksActivity.this, R.layout.list_item, categoryTitles);
+
+        auto_complete_textView.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
+
+        auto_complete_textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = (String) parent.getItemAtPosition(position);
+            }
+        });
+    }
+
+    // endregion
+
 }

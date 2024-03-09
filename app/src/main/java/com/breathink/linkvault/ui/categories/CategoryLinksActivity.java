@@ -28,16 +28,17 @@ import com.breathink.linkvault.LinkVaultBD;
 import com.breathink.linkvault.MainActivity;
 import com.breathink.linkvault.R;
 import com.breathink.linkvault.Singleton;
+import com.breathink.linkvault.Utils;
 import com.breathink.linkvault.models.Category;
 import com.breathink.linkvault.models.Link;
 import com.breathink.linkvault.ui.links.LinksAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CategoryLinksActivity extends AppCompatActivity {
+
+    // region Variables
 
     private MainActivity mainActivity;
     private LinkVaultBD dbHelper;
@@ -49,76 +50,35 @@ public class CategoryLinksActivity extends AppCompatActivity {
     private String selectedCategory_move;
     List<Link> selectedLinks;
 
+    // endregion
+
+    // region View elements
+
     private AutoCompleteTextView auto_complete_textView;
     private AutoCompleteTextView auto_complete_textView_move;
-
     private TextView tv_empty_link_list_category;
     private static RecyclerView recyclerView_links;
+
+    // endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_links);
 
-        mainActivity = Singleton.getInstance().getMainActivityInstance();
-        if (mainActivity != null) {
-            mainActivity.getMainActivity();
-        }
-
-        Intent intent = getIntent();
-        categoryId = intent.getIntExtra("categoryId", 1);
-        categoryTitle = intent.getStringExtra("categoryTitle");
-
-        Toolbar toolbar = findViewById(R.id.nav_toolbar);
-        toolbar.setTitle(categoryTitle);
-        setSupportActionBar(toolbar);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        // Database setup
-        dbHelper = new LinkVaultBD(this);
-
-        // RecyclerView setup
-        recyclerView_links = findViewById(R.id.recyclerView_links_in_category);
-        recyclerView_links.setLayoutManager(new LinearLayoutManager(this));
-        tv_empty_link_list_category = findViewById(R.id.tv_empty_link_list_category);
-        loadRecyclerViewData();
-
-        ImageButton btn_move_links = findViewById(R.id.btn_move_links);
-        ImageButton btn_share_links = findViewById(R.id.btn_share_links);
-
-        btn_move_links.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(checkIfLinksSelected()) {
-                    moveLinksDialog();
-                } else {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_no_links_selected), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        btn_share_links.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(checkIfLinksSelected()) {
-                    shareLinks();
-                } else {
-                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_no_links_selected), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        startSetup();
     }
+
+    // region Events
 
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
+
+    // endregion
+
+    // region Dialogs
 
     public void newLinkDialog(Link link, boolean edit) {
 
@@ -169,13 +129,13 @@ public class CategoryLinksActivity extends AppCompatActivity {
                 String title = titleText.getText().toString();
                 String url = urlText.getText().toString();
 
-                if(!validString(title)) {
+                if(!Utils.validString(title)) {
                     Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_title_link_empty), Toast.LENGTH_SHORT).show();
                 }
-                else if(!validString(url)) {
+                else if(!Utils.validString(url)) {
                     Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_url_empty), Toast.LENGTH_SHORT).show();
                 }
-                else if(!validUrl(url)) {
+                else if(!Utils.validUrl(url)) {
                     Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -256,7 +216,7 @@ public class CategoryLinksActivity extends AppCompatActivity {
 
                 String title = titleText.getText().toString();
 
-                if(!validString(title)) {
+                if(!Utils.validString(title)) {
                     Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_title_category_empty), Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -336,6 +296,66 @@ public class CategoryLinksActivity extends AppCompatActivity {
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
+    }
+
+    // endregion
+
+    // region Other methods
+
+    private void startSetup() {
+        mainActivity = Singleton.getInstance().getMainActivityInstance();
+        if (mainActivity != null) {
+            mainActivity.getMainActivity();
+        }
+
+        Intent intent = getIntent();
+        categoryId = intent.getIntExtra("categoryId", 1);
+        categoryTitle = intent.getStringExtra("categoryTitle");
+
+        Toolbar toolbar = findViewById(R.id.nav_toolbar);
+        toolbar.setTitle(categoryTitle);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        // Database setup
+        dbHelper = new LinkVaultBD(this);
+
+        // RecyclerView setup
+        recyclerView_links = findViewById(R.id.recyclerView_links_in_category);
+        recyclerView_links.setLayoutManager(new LinearLayoutManager(this));
+        tv_empty_link_list_category = findViewById(R.id.tv_empty_link_list_category);
+        loadRecyclerViewData();
+
+        ImageButton btn_move_links = findViewById(R.id.btn_move_links);
+        ImageButton btn_share_links = findViewById(R.id.btn_share_links);
+
+        btn_move_links.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(checkIfLinksSelected()) {
+                    moveLinksDialog();
+                } else {
+                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_no_links_selected), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btn_share_links.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(checkIfLinksSelected()) {
+                    shareLinks();
+                } else {
+                    Toast.makeText(CategoryLinksActivity.this, getString(R.string.error_no_links_selected), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void moveLinksToCategory() {
@@ -422,22 +442,8 @@ public class CategoryLinksActivity extends AppCompatActivity {
         startActivity(chooserIntent);
     }
 
-    public boolean validUrl(String url) {
+    // endregion
 
-        Pattern patron = Pattern.compile("^(https?://(w{3}\\.)?)?\\w+\\.\\w+(\\.[a-zA-Z]+)*(:\\d{1,5})?(/\\w*)*(\\??(.+=.*)?(&.+=.*)?)?$");
-        Matcher mat = patron.matcher(url);
-
-        return mat.matches();
-    }
-
-    public boolean validString(String string) {
-
-        Pattern patron = Pattern.compile("^(?!\\s*$).+");
-
-        Matcher mat = patron.matcher(string);
-
-        return mat.matches();
-    }
 }
 
 

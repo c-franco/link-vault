@@ -49,18 +49,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
+    // region Variables
+
     private ActivityMainBinding binding;
     private LinkVaultBD dbHelper;
+    private String selectedCategory;
+
+    // endregion
+
+    // region View elements
+
     private AutoCompleteTextView auto_complete_textView;
     private SearchView searchView;
     private BottomNavigationView bottomNavView;
 
-    private String selectedCategory;
+    // endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,17 +79,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         Singleton.getInstance().setMainActivityInstance(this);
 
-        // Database setup
-        dbHelper = new LinkVaultBD(MainActivity.this);
-
-        // Toolbar setup
-        Toolbar toolbar = findViewById(R.id.nav_toolbar);
-        setSupportActionBar(toolbar);
-
-        // Navigation setup
-        bottomNavView = findViewById(R.id.nav_view);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        startSetup();
 
         setListeners();
         createCategories();
@@ -97,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem searchMenuItem = menu.findItem(R.id.item_search);
         searchView = (SearchView) searchMenuItem.getActionView();
-
         Fragment currentFragment = getCurrentFragment();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -152,15 +147,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setListeners() {
-        binding.fabButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBottomDialog();
-            }
-        });
     }
 
     //endregion
@@ -278,13 +264,13 @@ public class MainActivity extends AppCompatActivity {
                 String title = titleText.getText().toString();
                 String url = urlText.getText().toString();
 
-                if(!validString(title)) {
+                if(!Utils.validString(title)) {
                     Toast.makeText(MainActivity.this, getString(R.string.error_title_link_empty), Toast.LENGTH_SHORT).show();
                 }
-                else if(!validString(url)) {
+                else if(!Utils.validString(url)) {
                     Toast.makeText(MainActivity.this, getString(R.string.error_url_empty), Toast.LENGTH_SHORT).show();
                 }
-                else if(!validUrl(url)) {
+                else if(!Utils.validUrl(url)) {
                     Toast.makeText(MainActivity.this, getString(R.string.error_url_not_valid), Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -365,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String title = titleText.getText().toString();
 
-                if(!validString(title)) {
+                if(!Utils.validString(title)) {
                     Toast.makeText(MainActivity.this, getString(R.string.error_title_category_empty), Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -474,6 +460,29 @@ public class MainActivity extends AppCompatActivity {
 
     //region Other Methods
 
+    private void startSetup() {
+        // Database setup
+        dbHelper = new LinkVaultBD(MainActivity.this);
+
+        // Toolbar setup
+        Toolbar toolbar = findViewById(R.id.nav_toolbar);
+        setSupportActionBar(toolbar);
+
+        // Navigation setup
+        bottomNavView = findViewById(R.id.nav_view);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        NavigationUI.setupWithNavController(binding.navView, navController);
+    }
+
+    private void setListeners() {
+        binding.fabButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBottomDialog();
+            }
+        });
+    }
+
     private void createCategories() {
 
         if(isFirstTime()) {
@@ -514,23 +523,6 @@ public class MainActivity extends AppCompatActivity {
                 selectedCategory = (String) parent.getItemAtPosition(position);
             }
         });
-    }
-
-    public boolean validUrl(String url) {
-
-        Pattern patron = Pattern.compile("^(https?://(w{3}\\.)?)?\\w+\\.\\w+(\\.[a-zA-Z]+)*(:\\d{1,5})?(/\\w*)*(\\??(.+=.*)?(&.+=.*)?)?$");
-        Matcher mat = patron.matcher(url);
-
-        return mat.matches();
-    }
-
-    public boolean validString(String string) {
-
-        Pattern patron = Pattern.compile("^(?!\\s*$).+");
-
-                Matcher mat = patron.matcher(string);
-
-        return mat.matches();
     }
 
     private Fragment getCurrentFragment() {

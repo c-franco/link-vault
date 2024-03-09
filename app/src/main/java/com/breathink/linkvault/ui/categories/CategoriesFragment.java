@@ -25,13 +25,21 @@ import java.util.List;
 
 public class CategoriesFragment extends Fragment {
 
+    // region Variables
+
     private FragmentCategoriesBinding binding;
     private LinkVaultBD dbHelper;
     private CategoriesAdapter categoriesAdapter;
     private List<Category> categoryList;
 
+    // endregion
+
+    // region View elements
+
     private TextView tv_empty_category_list;
     private static RecyclerView recyclerView_categories;
+
+    // endregion
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -40,14 +48,7 @@ public class CategoriesFragment extends Fragment {
         View root = binding.getRoot();
         setHasOptionsMenu(true);
 
-        // Database setup
-        dbHelper = new LinkVaultBD(getActivity());
-
-        // RecyclerView setup
-        recyclerView_categories = binding.getRoot().findViewById(R.id.recyclerView_categories);
-        recyclerView_categories.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
-        tv_empty_category_list = binding.getRoot().findViewById(R.id.tv_empty_category_list);
-        loadRecyclerViewData();
+        startSetup();
 
         return root;
     }
@@ -76,6 +77,17 @@ public class CategoriesFragment extends Fragment {
     // endregion
 
     // region Other methods
+
+    private void startSetup() {
+        // Database setup
+        dbHelper = new LinkVaultBD(getActivity());
+
+        // RecyclerView setup
+        recyclerView_categories = binding.getRoot().findViewById(R.id.recyclerView_categories);
+        recyclerView_categories.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
+        tv_empty_category_list = binding.getRoot().findViewById(R.id.tv_empty_category_list);
+        loadRecyclerViewData();
+    }
 
     private void loadRecyclerViewData() {
         categoryList = dbHelper.getAllCategories();

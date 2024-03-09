@@ -12,16 +12,15 @@ import android.widget.Toast;
 import com.breathink.linkvault.models.Category;
 import com.breathink.linkvault.models.Link;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class LinkVaultBD extends SQLiteOpenHelper {
+
+    // region Static fields
 
     public static final String DATABASE_NAME = "LinksVault";
     private static final int DB_VERSION = 1;
@@ -35,7 +34,13 @@ public class LinkVaultBD extends SQLiteOpenHelper {
     public static final String IS_PRIVATE_COL = "isPrivate";
     public static final String TIMESTAMP_COL = "timestamp";
 
+    // endregion
+
+    // region Variables
+
     private Context context;
+
+    // endregion
 
     public LinkVaultBD(Context context) {
         super(context, DATABASE_NAME, null, DB_VERSION);
@@ -66,45 +71,7 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
     }
 
-    // region Create
-
-    public void addNewLink(Link link) {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put(URL_COL, link.url);
-        values.put(TITLE_COL, link.title);
-        values.put(ID_CATEGORY_COL, link.idCategory);
-        values.put(IS_FAVORITE_COL, link.isFavorite);
-        values.put(IS_PRIVATE_COL, link.isPrivate);
-        values.put(TIMESTAMP_COL, getCurrentTimestamp());
-
-        db.insert(LINKS_TABLE, null, values);
-        db.close();
-    }
-
-    public void addNewCategory(Category category) {
-
-        if(categoryExist(category.title)) {
-            Toast.makeText(this.context, this.context.getString(R.string.error_db_repeated_category), Toast.LENGTH_SHORT).show();
-        }
-        else {
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(TITLE_COL, category.title);
-            values.put(TIMESTAMP_COL, getCurrentTimestamp());
-
-            db.insert(CATEGORIES_TABLE, null, values);
-            db.close();
-        }
-
-
-    }
-
-    // endregion
-
-    // region Link querys
+    // region Get
 
     @SuppressLint("Range")
     public List<Link> getAllLinks(boolean privateLinks, boolean export) {
@@ -142,7 +109,6 @@ public class LinkVaultBD extends SQLiteOpenHelper {
                     linkList.add(link);
                 } while (cursor.moveToNext());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,7 +139,6 @@ public class LinkVaultBD extends SQLiteOpenHelper {
                     linkList.add(link);
                 } while (cursor.moveToNext());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -193,7 +158,6 @@ public class LinkVaultBD extends SQLiteOpenHelper {
                     urlList.add(cursor.getString(cursor.getColumnIndex(URL_COL)));
                 } while (cursor.moveToNext());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -245,51 +209,6 @@ public class LinkVaultBD extends SQLiteOpenHelper {
 
         return links;
     }
-
-    public void updateLink(Link link) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put(URL_COL, link.url);
-        values.put(TITLE_COL, link.title);
-        values.put(ID_CATEGORY_COL, link.idCategory);
-        values.put(IS_FAVORITE_COL, link.isFavorite);
-        values.put(IS_PRIVATE_COL, link.isPrivate);
-
-        String whereClause = ID_COL + "=?";
-        String[] whereArgs = {String.valueOf(link.id)};
-
-        db.update(LINKS_TABLE, values, whereClause, whereArgs);
-        db.close();
-    }
-
-    public void moveLinkToCategory(Link link, int categoryId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(ID_CATEGORY_COL, categoryId);
-
-        String whereClause = ID_COL + "=?";
-        String[] whereArgs = {String.valueOf(link.id)};
-
-        db.update(LINKS_TABLE, values, whereClause, whereArgs);
-        db.close();
-    }
-
-    public void deleteLinkById(int linkId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String selection = ID_COL + " = ?";
-        String[] selectionArgs = {String.valueOf(linkId)};
-
-        db.delete(LINKS_TABLE, selection, selectionArgs);
-
-        db.close();
-    }
-
-    // endregion
-
-    // region Category querys
 
     public List<String> getAllCategoryTitles() {
         List<String> categoryTitles = new ArrayList<>();
@@ -380,6 +299,79 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         return categoryTitle;
     }
 
+    private boolean categoryExist(String title) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {ID_COL};
+        String selection = TITLE_COL + "=?";
+        String[] selectionArgs = {title};
+
+        try (Cursor cursor = db.query(CATEGORIES_TABLE, columns, selection, selectionArgs, null, null, null)) {
+            return cursor != null && cursor.moveToFirst();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.close();
+        }
+    }
+
+    // endregion
+
+    // region Create
+
+    public void addNewLink(Link link) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(URL_COL, link.url);
+        values.put(TITLE_COL, link.title);
+        values.put(ID_CATEGORY_COL, link.idCategory);
+        values.put(IS_FAVORITE_COL, link.isFavorite);
+        values.put(IS_PRIVATE_COL, link.isPrivate);
+        values.put(TIMESTAMP_COL, Utils.getCurrentTimestamp());
+
+        db.insert(LINKS_TABLE, null, values);
+        db.close();
+    }
+
+    public void addNewCategory(Category category) {
+
+        if(categoryExist(category.title)) {
+            Toast.makeText(this.context, this.context.getString(R.string.error_db_repeated_category), Toast.LENGTH_SHORT).show();
+        }
+        else {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(TITLE_COL, category.title);
+            values.put(TIMESTAMP_COL, Utils.getCurrentTimestamp());
+
+            db.insert(CATEGORIES_TABLE, null, values);
+            db.close();
+        }
+    }
+
+    // endregion
+
+    // region Update
+
+    public void updateLink(Link link) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(URL_COL, link.url);
+        values.put(TITLE_COL, link.title);
+        values.put(ID_CATEGORY_COL, link.idCategory);
+        values.put(IS_FAVORITE_COL, link.isFavorite);
+        values.put(IS_PRIVATE_COL, link.isPrivate);
+
+        String whereClause = ID_COL + "=?";
+        String[] whereArgs = {String.valueOf(link.id)};
+
+        db.update(LINKS_TABLE, values, whereClause, whereArgs);
+        db.close();
+    }
+
     public void updateCategory(Category category) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -390,6 +382,34 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         String[] whereArgs = {String.valueOf(category.id)};
 
         db.update(CATEGORIES_TABLE, values, whereClause, whereArgs);
+        db.close();
+    }
+
+    public void moveLinkToCategory(Link link, int categoryId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(ID_CATEGORY_COL, categoryId);
+
+        String whereClause = ID_COL + "=?";
+        String[] whereArgs = {String.valueOf(link.id)};
+
+        db.update(LINKS_TABLE, values, whereClause, whereArgs);
+        db.close();
+    }
+
+    // endregion
+
+    // region Delete
+
+    public void deleteLinkById(int linkId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String selection = ID_COL + " = ?";
+        String[] selectionArgs = {String.valueOf(linkId)};
+
+        db.delete(LINKS_TABLE, selection, selectionArgs);
+
         db.close();
     }
 
@@ -410,20 +430,21 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         db.close();
     }
 
-    private boolean categoryExist(String title) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String[] columns = {ID_COL};
-        String selection = TITLE_COL + "=?";
-        String[] selectionArgs = {title};
+    public void deleteAllData() {
+        deleteAllLinks();
+        deleteAllCategories();
+    }
 
-        try (Cursor cursor = db.query(CATEGORIES_TABLE, columns, selection, selectionArgs, null, null, null)) {
-            return cursor != null && cursor.moveToFirst();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            db.close();
-        }
+    public void deleteAllLinks() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(LINKS_TABLE, null, null);
+        db.close();
+    }
+
+    public void deleteAllCategories() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + CATEGORIES_TABLE + " WHERE " + ID_COL + " <> 1");
+        db.close();
     }
 
     // endregion
@@ -446,45 +467,6 @@ public class LinkVaultBD extends SQLiteOpenHelper {
         }
 
         return csvData.toString();
-    }
-
-    // endregion
-
-    // region Other methods
-
-    public void deleteAllData() {
-        deleteAllLinks();
-        deleteAllCategories();
-    }
-
-    private String getCurrentTimestamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return sdf.format(new Date());
-    }
-
-    private String getSortClause(int sortOption) {
-
-        if(sortOption == R.id.rb_newest){
-            return TIMESTAMP_COL + " DESC";
-        }
-        else if(sortOption == R.id.rb_oldest){
-            return TIMESTAMP_COL + " ASC";
-        }
-        else {
-            return TITLE_COL + " ASC";
-        }
-    }
-
-    public void deleteAllLinks() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(LINKS_TABLE, null, null);
-        db.close();
-    }
-
-    public void deleteAllCategories() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + CATEGORIES_TABLE + " WHERE " + ID_COL + " <> 1");
-        db.close();
     }
 
     public void importData(String[] csvLines) {
@@ -529,6 +511,23 @@ public class LinkVaultBD extends SQLiteOpenHelper {
                     addNewLink(link);
                 }
             }
+        }
+    }
+
+    // endregion
+
+    // region Other methods
+
+    private String getSortClause(int sortOption) {
+
+        if(sortOption == R.id.rb_newest){
+            return TIMESTAMP_COL + " DESC";
+        }
+        else if(sortOption == R.id.rb_oldest){
+            return TIMESTAMP_COL + " ASC";
+        }
+        else {
+            return TITLE_COL + " ASC";
         }
     }
 
