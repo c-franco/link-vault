@@ -75,4 +75,12 @@
     <string name="error_export_permission">Permission required on external storage</string>
     <string name="text_import_correct">Import successfully completed</string>
     <string name="error_import">An error occurred while importing data</string>
+    <string name="setting_more_apps">More apps</string>
+    <string name="text_close_dialog">Close window</string>
+    <string name="text_open_category">Open category</string>
+    <string name="text_list_category">Category list</string>
+    <string name="text_list_favorites">Favorite list</string>
+    <string name="text_list_category_links">Links in category list</string>
+    <string name="text_list_links">Link list</string>
+    <string name="text_list_private">Private link list</string>
 </resources>

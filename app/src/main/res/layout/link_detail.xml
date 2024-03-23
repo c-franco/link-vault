@@ -83,6 +83,7 @@
             android:id="@+id/bt_create_category_inlink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/text_create_category"
             android:text=""
             android:layout_marginTop="10dp"
             android:background="@drawable/ic_add_circle_24dp" />

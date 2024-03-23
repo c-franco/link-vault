@@ -4,25 +4,30 @@
     <item
         android:id="@+id/navigation_links"
         android:icon="@drawable/ic_links_24dp"
+        android:contentDescription="@string/title_links"
         android:title="@string/title_links" />
 
     <item
         android:id="@+id/navigation_categories"
         android:icon="@drawable/ic_categories_24dp"
+        android:contentDescription="@string/title_categories"
         android:title="@string/title_categories" />
 
     <item
         android:id="@+id/navigation_add"
         android:title=""
+        android:contentDescription="@string/item_add"
         android:enabled="false" />
 
     <item
         android:id="@+id/navigation_favorites"
         android:icon="@drawable/ic_favorites_24dp"
+        android:contentDescription="@string/title_favorites"
         android:title="@string/title_favorites" />
 
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings_24dp"
+        android:contentDescription="@string/title_settings"
         android:title="@string/title_settings" />
 </menu>

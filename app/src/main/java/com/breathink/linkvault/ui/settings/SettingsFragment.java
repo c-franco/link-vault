@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.KeyguardManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -71,6 +72,7 @@ public class SettingsFragment extends Fragment {
     private LinearLayout layout_export;
     private LinearLayout layout_import;
     private LinearLayout layout_delete;
+    private LinearLayout layout_more_apps;
     private Switch switch_darkmode;
     private TextView tv_version_number;
     private TextView tv_current_language_text;
@@ -106,6 +108,7 @@ public class SettingsFragment extends Fragment {
         layout_export = root.findViewById(R.id.layout_export);
         layout_import = root.findViewById(R.id.layout_import);
         layout_delete = root.findViewById(R.id.layout_delete);
+        layout_more_apps = root.findViewById(R.id.layout_more_apps);
         switch_darkmode = root.findViewById(R.id.switch_darkmode);
         tv_version_number = root.findViewById(R.id.tv_version_number);
         tv_current_language_text = root.findViewById(R.id.tv_current_language_text);
@@ -152,6 +155,14 @@ public class SettingsFragment extends Fragment {
                 showDeleteDialog();
             }
         });
+
+        layout_more_apps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMoreApps();
+            }
+        });
+
 
         switch_darkmode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -505,6 +516,18 @@ public class SettingsFragment extends Fragment {
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
+    }
+
+    private void openMoreApps() {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        String devName = "breathink";
+        intent.setData(Uri.parse("market://search?q=pub:" + devName));
+        try{
+            startActivity(intent);
+        }
+        catch(Exception e){
+            intent.setData(Uri.parse("http://play.google.com/store/search?q=pub:" +devName));
+        }
     }
 
     // endregion

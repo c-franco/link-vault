@@ -25,6 +25,13 @@
     <string name="text_update">Update</string>
     <string name="text_move">Move links</string>
     <string name="text_order">Order by</string>
+    <string name="text_open_category">Open category</string>
+    <string name="text_list_category">Category list</string>
+    <string name="text_list_favorites">Favorite list</string>
+    <string name="text_list_links">Link list</string>
+    <string name="text_list_private">Private link list</string>
+    <string name="text_list_category_links">Links in category list</string>
+    <string name="text_close_dialog">Close window</string>
     <string name="text_select_language">Select language</string>
     <string name="text_create_link">Create new link</string>
     <string name="text_create_category">Create new category</string>
@@ -79,6 +86,7 @@
     <string name="setting_export_links">Export links</string>
     <string name="setting_import_links">Import links</string>
     <string name="setting_delete_data">Delete all data</string>
+    <string name="setting_more_apps">More apps</string>
     <string name="setting_version">Version</string>
 
     <string name="language_spanish">Spanish</string>

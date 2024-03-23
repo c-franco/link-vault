@@ -40,6 +40,7 @@
                     android:id="@+id/tv_enter_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/text_open_category"
                     android:text=""
                     android:background="@drawable/ic_navigate_next_24dp" />
 
@@ -47,6 +48,7 @@
                     android:id="@+id/tv_more_icon_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/item_more"
                     android:text=""
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/ic_more_vert_24dp"/>

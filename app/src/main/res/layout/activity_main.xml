@@ -73,6 +73,7 @@
             android:id="@+id/fab_button"
             android:src="@drawable/ic_add_24dp"
             app:layout_anchor="@id/bottom_bar_app"
+            android:contentDescription="@string/item_add"
             app:maxImageSize="40dp"
             app:tint="@color/floating_button"
             app:borderWidth="0dp"/>

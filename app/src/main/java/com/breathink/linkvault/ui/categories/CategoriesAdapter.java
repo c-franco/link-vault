@@ -92,7 +92,9 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
 
                 Menu menu = popup.getMenu();
                 MenuItem deleteItem = menu.findItem(R.id.option_delete);
+                MenuItem editItem = menu.findItem(R.id.option_edit);
                 deleteItem.setVisible(category.id != 1);
+                editItem.setVisible(category.id != 1);
 
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @SuppressLint("NonConstantResourceId")

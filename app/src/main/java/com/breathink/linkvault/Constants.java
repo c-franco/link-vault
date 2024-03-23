@@ -3,7 +3,7 @@ package com.breathink.linkvault;
 public class Constants {
 
     public static final String CSV_NAME = "link_vault_data.csv";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.1.0";
 
     public static final String EN_CODE = "en";
     public static final String ES_CODE = "es";
