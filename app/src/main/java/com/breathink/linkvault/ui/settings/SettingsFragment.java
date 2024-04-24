@@ -520,13 +520,12 @@ public class SettingsFragment extends Fragment {
 
     private void openMoreApps() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        String devName = "breathink";
-        intent.setData(Uri.parse("market://search?q=pub:" + devName));
+        intent.setData(Uri.parse("market://search?q=pub:" + Constants.DEV_NAME));
         try{
             startActivity(intent);
         }
         catch(Exception e){
-            intent.setData(Uri.parse("http://play.google.com/store/search?q=pub:" +devName));
+            intent.setData(Uri.parse("http://play.google.com/store/search?q=pub:" + Constants.DEV_NAME));
         }
     }
 
