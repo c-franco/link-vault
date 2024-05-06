@@ -71,6 +71,7 @@
     <string name="error_export">An error occurred while exporting data</string>
     <string name="error_import">An error occurred while importing data</string>
     <string name="error_export_permission">Permission required on external storage</string>
+    <string name="error_send_suggestion">No mail application was found</string>
 
     <string name="default_category0">No category</string>
     <string name="default_category1">School</string>
@@ -86,6 +87,8 @@
     <string name="setting_export_links">Export links</string>
     <string name="setting_import_links">Import links</string>
     <string name="setting_delete_data">Delete all data</string>
+    <string name="setting_contact">Send a suggestion</string>
+    <string name="setting_rate_app">Rate the app</string>
     <string name="setting_more_apps">More apps</string>
     <string name="setting_version">Version</string>
 

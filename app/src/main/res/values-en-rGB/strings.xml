@@ -83,4 +83,7 @@
     <string name="text_list_category_links">Links in category list</string>
     <string name="text_list_links">Link list</string>
     <string name="text_list_private">Private link list</string>
+    <string name="setting_rate_app">Rate the app</string>
+    <string name="setting_contact">Send a suggestion</string>
+    <string name="error_send_suggestion">No mail application was found.</string>
 </resources>

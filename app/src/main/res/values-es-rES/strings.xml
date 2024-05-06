@@ -83,4 +83,7 @@
     <string name="text_list_category_links">Lista de enlaces en la categoría</string>
     <string name="text_list_links">Lista de enlaces</string>
     <string name="text_list_private">Lista de enlaces privados</string>
+    <string name="setting_rate_app">Valora la aplicación</string>
+    <string name="setting_contact">Enviar una sugerencia</string>
+    <string name="error_send_suggestion">No se encontró ninguna aplicación de correo</string>
 </resources>

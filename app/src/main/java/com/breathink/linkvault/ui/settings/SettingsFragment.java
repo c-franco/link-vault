@@ -9,6 +9,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -73,6 +74,8 @@ public class SettingsFragment extends Fragment {
     private LinearLayout layout_import;
     private LinearLayout layout_delete;
     private LinearLayout layout_more_apps;
+    private LinearLayout layout_contact;
+    private LinearLayout layout_rate_app;
     private Switch switch_darkmode;
     private TextView tv_version_number;
     private TextView tv_current_language_text;
@@ -108,6 +111,8 @@ public class SettingsFragment extends Fragment {
         layout_export = root.findViewById(R.id.layout_export);
         layout_import = root.findViewById(R.id.layout_import);
         layout_delete = root.findViewById(R.id.layout_delete);
+        layout_contact = root.findViewById(R.id.layout_contact);
+        layout_rate_app = root.findViewById(R.id.layout_rate_app);
         layout_more_apps = root.findViewById(R.id.layout_more_apps);
         switch_darkmode = root.findViewById(R.id.switch_darkmode);
         tv_version_number = root.findViewById(R.id.tv_version_number);
@@ -160,6 +165,20 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 openMoreApps();
+            }
+        });
+
+        layout_contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendSuggestion();
+            }
+        });
+
+        layout_rate_app.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rateApp();
             }
         });
 
@@ -527,6 +546,62 @@ public class SettingsFragment extends Fragment {
         catch(Exception e){
             intent.setData(Uri.parse("http://play.google.com/store/search?q=pub:" + Constants.DEV_NAME));
         }
+    }
+
+    private void rateApp() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + Constants.APP_PACKAGE_NAME));
+            startActivity(intent);
+        } catch (Exception e) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + Constants.APP_PACKAGE_NAME));
+            startActivity(intent);
+        }
+    }
+
+    private void sendSuggestion() {
+        try {
+
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            emailIntent.setType("text/plain");
+
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{Constants.DEV_MAIL});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Suggestion for: " + Constants.APP_PACKAGE_NAME);
+            emailIntent.putExtra(Intent.EXTRA_TEXT, getEmailBody());
+
+            startActivity(emailIntent);
+
+        } catch (Exception e) {
+            Toast.makeText(getContext(), getString(R.string.error_send_suggestion), Toast.LENGTH_SHORT).show();        }
+    }
+
+    private String getEmailBody() {
+        String deviceOS = "Android";
+        String deviceOSVersion = String.valueOf(Build.VERSION.SDK_INT);
+        String deviceBrand = Build.BRAND;
+        String deviceModel = Build.MODEL;
+        String deviceManufacturer = Build.MANUFACTURER;
+
+        PackageManager packageManager = getContext().getPackageManager();
+        String packageName = getContext().getPackageName();
+        String appVersion = "";
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(packageName, 0);
+            appVersion = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String body = "\n\n";
+        body += "-----------------------------\n";
+        body += "Please don't remove this information\n";
+        body += "Device OS: " + deviceOS + "\n";
+        body += "Device OS version: " + deviceOSVersion + "\n";
+        body += "App Version: " + appVersion + "\n";
+        body += "Device Brand: " + deviceBrand + "\n";
+        body += "Device Model: " + deviceModel + "\n";
+        body += "Device Manufacturer: " + deviceManufacturer + "\n";
+
+        return body;
     }
 
     // endregion

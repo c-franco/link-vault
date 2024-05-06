@@ -4,7 +4,9 @@ public class Constants {
 
     public static final String CSV_NAME = "link_vault_data.csv";
     public static final String DEV_NAME = "Breathink";
-    public static final String VERSION = "1.1.1";
+    public static final String DEV_MAIL = "breathink.dev@gmail.com";
+    public static final String APP_PACKAGE_NAME = "com.breathink.linkvault";
+    public static final String VERSION = "1.2.0";
 
     public static final String EN_CODE = "en";
     public static final String ES_CODE = "es";
