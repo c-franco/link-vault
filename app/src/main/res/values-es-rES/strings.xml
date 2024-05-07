@@ -86,4 +86,5 @@
     <string name="setting_rate_app">Valora la aplicación</string>
     <string name="setting_contact">Enviar una sugerencia</string>
     <string name="error_send_suggestion">No se encontró ninguna aplicación de correo</string>
+    <string name="item_shortcut">Crear acceso directo</string>
 </resources>

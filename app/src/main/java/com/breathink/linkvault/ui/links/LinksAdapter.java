@@ -7,8 +7,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,15 +25,21 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.breathink.linkvault.LinkVaultBD;
 import com.breathink.linkvault.MainActivity;
 import com.breathink.linkvault.R;
+import com.breathink.linkvault.Utils;
 import com.breathink.linkvault.models.Link;
 import com.breathink.linkvault.ui.categories.CategoryLinksActivity;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> {
 
@@ -93,12 +103,8 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
             @SuppressLint("QueryPermissionsNeeded")
             @Override
             public void onClick(View v) {
-                String url = link.url;
-                if (!url.startsWith("http://") && !url.startsWith("https://"))
-                    url = "http://" + url;
-
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
+                intent.setData(Uri.parse(Utils.formatUrl(link.url)));
                 v.getContext().startActivity(intent);
             }
         });
@@ -121,6 +127,9 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
                         }
                         else if(item.getItemId() == R.id.option_share) {
                             shareLink(v, link.url);
+                        }
+                        else if(item.getItemId() == R.id.option_shortcut) {
+                            createShortcut(v, link);
                         }
 
                         return false;
@@ -242,6 +251,22 @@ public class LinksAdapter extends RecyclerView.Adapter<LinksAdapter.ViewHolder> 
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { clipboardIntent });
 
         v.getContext().startActivity(chooserIntent);
+    }
+
+    private void createShortcut(View v, Link link) {
+        if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+            browserIntent.setData(Uri.parse(Utils.formatUrl(link.url)));
+
+            ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(context, UUID.randomUUID().toString())
+                    .setShortLabel(link.title)
+                    .setIcon(IconCompat.createWithResource(context, R.drawable.ic_links_24dp))
+                    .setIntent(browserIntent)
+                    .build();
+
+            ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null);
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

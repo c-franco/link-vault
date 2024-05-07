@@ -16,6 +16,7 @@
     <string name="item_edit">Edit</string>
     <string name="item_delete">Delete</string>
     <string name="item_share">Share</string>
+    <string name="item_shortcut">Create shortcut</string>
     <string name="item_copy">Copy</string>
     <string name="item_sort">Sort</string>
     <string name="item_move">Move</string>

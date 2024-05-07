@@ -593,7 +593,7 @@ public class SettingsFragment extends Fragment {
 
         String body = "\n\n";
         body += "-----------------------------\n";
-        body += "Please don't remove this information\n";
+        body += "Please don't delete this information.\n";
         body += "Device OS: " + deviceOS + "\n";
         body += "Device OS version: " + deviceOSVersion + "\n";
         body += "App Version: " + appVersion + "\n";

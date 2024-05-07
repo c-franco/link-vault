@@ -13,4 +13,8 @@
         android:id="@+id/option_share"
         android:title="@string/item_share" />
 
+    <item
+        android:id="@+id/option_shortcut"
+        android:title="@string/item_shortcut" />
+
 </menu>
