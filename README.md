@@ -36,24 +36,16 @@ This app lets you:
 
 ## Screenshots
 
-<img src="https://play-lh.googleusercontent.com/PevcwPa2uMOlhV5QBMLTo0zbent6m7nq2g1xqg-q573G3sretIrZZaaBdxkb-jby2KV4=w526-h296" align="left"
-width="200"
-    hspace="10" vspace="10">
-<img src="https://play-lh.googleusercontent.com/g_0OLUC6Z98ZgwDDA9co0jeJbSJ5ONen7G_3xk5vZh1BGdmyoX5cgjm797TvuOzaxA=w526-h296" align="center"
-width="200"
-    hspace="10" vspace="10">
-<img src="https://play-lh.googleusercontent.com/HUKnR08N9qG78l0BIddiO-DSGk1zMI-_-8b7dtXBNnm_NRyrnJFk8B3rte-J0PX4MVs=w526-h296" align="center"
-width="200"
-    hspace="10" vspace="10">
-<img src="https://play-lh.googleusercontent.com/sjk25V_2ORHDPdAaBX7mG-dKAegHnD7RAwd2L4re17cs0skvVoWpTx8yR-zLasTPiPkX=w526-h296" align="center"
-width="200"
-    hspace="10" vspace="10">
-<img src="https://play-lh.googleusercontent.com/YpciV0qyp6sK8Nw5PB3pf4m0WQPIPoD55FyKZrbmqUfLzsbpgF931PxgIsFk2O8GCQ=w526-h296" align="center"
-width="200"
-    hspace="10" vspace="10">
-<img src="https://play-lh.googleusercontent.com/lW7xc2gxd0WQtCSAttwysmlxKQSPGEBJ1pQcTypZFTX5u1lXADa4es2NqvM1-G2bTKw=w526-h296" align="center"
-width="200"
-    hspace="10" vspace="10">
+<p align="center">
+  <img src="https://play-lh.googleusercontent.com/PevcwPa2uMOlhV5QBMLTo0zbent6m7nq2g1xqg-q573G3sretIrZZaaBdxkb-jby2KV4=w526-h296" width="200" hspace="10" vspace="10">
+  <img src="https://play-lh.googleusercontent.com/g_0OLUC6Z98ZgwDDA9co0jeJbSJ5ONen7G_3xk5vZh1BGdmyoX5cgjm797TvuOzaxA=w526-h296" width="200" hspace="10" vspace="10">
+  <img src="https://play-lh.googleusercontent.com/HUKnR08N9qG78l0BIddiO-DSGk1zMI-_-8b7dtXBNnm_NRyrnJFk8B3rte-J0PX4MVs=w526-h296" width="200" hspace="10" vspace="10">
+</p>
+<p align="center">
+  <img src="https://play-lh.googleusercontent.com/sjk25V_2ORHDPdAaBX7mG-dKAegHnD7RAwd2L4re17cs0skvVoWpTx8yR-zLasTPiPkX=w526-h296" width="200" hspace="10" vspace="10">
+  <img src="https://play-lh.googleusercontent.com/YpciV0qyp6sK8Nw5PB3pf4m0WQPIPoD55FyKZrbmqUfLzsbpgF931PxgIsFk2O8GCQ=w526-h296" width="200" hspace="10" vspace="10">
+  <img src="https://play-lh.googleusercontent.com/lW7xc2gxd0WQtCSAttwysmlxKQSPGEBJ1pQcTypZFTX5u1lXADa4es2NqvM1-G2bTKw=w526-h296" width="200" hspace="10" vspace="10">
+</p>
 
 ## Permissions
 
