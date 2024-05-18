@@ -21,8 +21,6 @@ LinkVault is available on the Google Play Store.
 
 LinkVault is a free and open source project designed to help you easily organize and access your favorite links. With a user-friendly interface and powerful features, LinkVault makes it simple to keep all your important URLs in one place.
 
-Built using the **Android Studio** and **Java**, it ensures compatibility and reliability across a wide range of Android devices. The user interface, crafted with **XML**, is both visually appealing and easy to navigate. For secure local data storage, LinkVault uses **SQLite**, providing efficient and reliable data management.
-
 ## Features
 
 This app lets you:
@@ -47,6 +45,13 @@ This app lets you:
   <img src="https://play-lh.googleusercontent.com/lW7xc2gxd0WQtCSAttwysmlxKQSPGEBJ1pQcTypZFTX5u1lXADa4es2NqvM1-G2bTKw=w526-h296" width="200" hspace="10" vspace="10">
 </p>
 
+## Stack
+
+- [![Android Studio][android-studio-badge]][android-studio-url] - The web framework for content-driven websites.
+- [![Android Studio][java-badge]][java-url] - The web framework for content-driven websites.
+- [![Android Studio][xml-badge]][xml-url] - The web framework for content-driven websites.
+- [![sqlite][sqlite-badge]][sqlite-url] - Easy peasy animations for your Tailwind project.
+
 ## Permissions
 
 LinkVault requires the following permissions:
@@ -65,3 +70,14 @@ LinkVault is a free and open source project. Any contributions are welcome. Here
 ## License
 
 This application is released under the [MIT License](LICENSE).
+
+
+[android-studio-url]: https://developer.android.com/studio
+[java-url]: https://www.oracle.com/es/java/
+[xml-url]: https://developer.mozilla.org/es/docs/Web/XML/XML_introduction
+[sqlite-url]: https://www.sqlite.org/
+
+[android-studio-badge]: https://img.shields.io/badge/Android_Studio-fff?style=for-the-badge&logo=android&logoColor=a4c639&color=fff
+[java-badge]: https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white
+[xml-badge]: https://img.shields.io/badge/%3C/%3E%20xml-3D72D7?style=for-the-badge&logo=mysl&logoColor=white
+[sqlite-badge]: https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white
