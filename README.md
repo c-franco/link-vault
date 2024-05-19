@@ -47,10 +47,10 @@ This app lets you:
 
 ## Stack
 
-- [![Android Studio][android-studio-badge]][android-studio-url] - The web framework for content-driven websites.
-- [![Android Studio][java-badge]][java-url] - The web framework for content-driven websites.
-- [![Android Studio][xml-badge]][xml-url] - The web framework for content-driven websites.
-- [![sqlite][sqlite-badge]][sqlite-url] - Easy peasy animations for your Tailwind project.
+- [![Android Studio][android-studio-badge]][android-studio-url] - The official IDE for Android development.
+- [![Java][java-badge]][java-url] - A high-level, class-based, object-oriented programming language.
+- [![XML][xml-badge]][xml-url] - A markup language for encoding documents.
+- [![sqlite][sqlite-badge]][sqlite-url] - A small, fast, self-contained, high-reliability, full-featured, SQL database engine.
 
 ## Permissions
 
